@@ -645,7 +645,10 @@ const Dashboard: React.FC = () => {
           align-items: center;
           justify-content: space-between;
           padding: 0 30px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+          position: sticky;
+          top: 0;
+          z-index: 10;
         }
         .dashboard-body {
           padding: 30px;
@@ -827,7 +830,7 @@ const Dashboard: React.FC = () => {
       {/* Main Content Area */}
       <div className="dashboard-content-area">
         {/* Topbar navigation area */}
-        <header className="dashboard-topbar">
+        <div className="dashboard-topbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -867,7 +870,7 @@ const Dashboard: React.FC = () => {
               <span className="hidden-mobile">Logout</span>
             </button>
           </div>
-        </header>
+        </div>
 
         {/* Dashboard Body container */}
         <main className="dashboard-body">
