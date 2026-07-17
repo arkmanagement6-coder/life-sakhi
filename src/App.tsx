@@ -49,7 +49,7 @@ const AppContent: React.FC = () => {
   const isDashboardPage = location.pathname.startsWith('/dashboard');
 
   return (
-    <div className={isHomePage ? 'home-page-layout' : 'inner-page-layout'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className={isHomePage ? 'home-page-layout' : (isDashboardPage ? 'dashboard-page-layout' : 'inner-page-layout')} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <ScrollToTop />
       {!isDashboardPage && <Header />}
       <main style={{ flex: 1 }}>
