@@ -338,8 +338,8 @@ img {
 .hero-slider-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 120px);
-  min-height: 550px;
+  height: 100vh;
+  min-height: 700px;
   overflow: hidden;
   background: var(--color-dark);
 }
@@ -390,6 +390,7 @@ img {
   color: var(--color-white);
   max-width: 750px;
   padding: 20px;
+  padding-top: 100px; /* Push text down to avoid header link overlap */
   opacity: 0;
   transform: translateY(30px);
   transition: transform 0.8s ease, opacity 0.8s ease;
@@ -406,6 +407,7 @@ img {
   line-height: 1.15;
   margin-bottom: 20px;
   font-weight: 800;
+  color: var(--color-green); /* Branding green color */
 }
 
 .slide-text {
