@@ -1,6 +1,40 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle, ArrowLeft, Send, Shield } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Send, Shield, Search, MapPin, Users } from 'lucide-react';
+
+const STATE_DISTRICTS: Record<string, string[]> = {
+  "All States": [],
+  "Uttar Pradesh": ["Agra", "Mathura", "Lucknow", "Noida", "Kanpur", "Varanasi"],
+  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik"],
+  "Delhi": ["New Delhi", "North Delhi", "South Delhi", "West Delhi"],
+  "Haryana": ["Rohtak", "Gurugram", "Faridabad", "Panipat", "Ambala"],
+  "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"],
+  "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi"],
+  "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior", "Jabalpur"],
+  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem"],
+  "Punjab": ["Amritsar", "Ludhiana", "Jalandhar", "Patiala"],
+  "Bihar": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur"],
+  "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Asansol"]
+};
+
+const DIRECTORY_MEMBERS = [
+  { name: "Dinesh Kumar", role: "volunteer", state: "Uttar Pradesh", district: "Agra", phone: "+91 99887 76655", email: "dinesh@example.com" },
+  { name: "Preeti Singh", role: "district_coordinator", state: "Uttar Pradesh", district: "Mathura", phone: "+91 88776 65544", email: "preeti@example.com" },
+  { name: "Ramesh Patil", role: "volunteer", state: "Maharashtra", district: "Pune", phone: "+91 77665 54433", email: "ramesh@example.com" },
+  { name: "Meenakshi Nair", role: "state_coordinator", state: "Maharashtra", district: "Mumbai", phone: "+91 66554 43322", email: "meenakshi@example.com" },
+  { name: "Vivek Sharma", role: "csr_partner", state: "Delhi", district: "New Delhi", phone: "+91 95432 10987", email: "vivek@example.com" },
+  { name: "Rajesh Gupta", role: "district_coordinator", state: "Haryana", district: "Rohtak", phone: "+91 84321 09876", email: "rajesh@example.com" },
+  { name: "Pooja Chaudhary", role: "volunteer", state: "Haryana", district: "Gurugram", phone: "+91 93210 98765", email: "pooja@example.com" },
+  { name: "Amit Sen", role: "state_coordinator", state: "Rajasthan", district: "Jaipur", phone: "+91 92109 87654", email: "amit@example.com" },
+  { name: "Priya Verma", role: "corporate_partner", state: "Rajasthan", district: "Jodhpur", phone: "+91 91098 76543", email: "priya@example.com" },
+  { name: "Sunil Dutt", role: "volunteer", state: "Madhya Pradesh", district: "Bhopal", phone: "+91 91122 33445", email: "sunil@example.com" },
+  { name: "Kirti Patel", role: "volunteer", state: "Gujarat", district: "Ahmedabad", phone: "+91 92233 44556", email: "kirti@example.com" },
+  { name: "Deepak Gill", role: "district_coordinator", state: "Punjab", district: "Amritsar", phone: "+91 93344 55667", email: "deepak@example.com" },
+  { name: "Ananya Roy", role: "volunteer", state: "West Bengal", district: "Kolkata", phone: "+91 94455 66778", email: "ananya@example.com" },
+  { name: "Karthik Raja", role: "volunteer", state: "Tamil Nadu", district: "Chennai", phone: "+91 95566 77889", email: "karthik@example.com" },
+  { name: "Suresh Hegde", role: "state_coordinator", state: "Karnataka", district: "Bengaluru", phone: "+91 96677 88990", email: "suresh@example.com" }
+];
 
 const AboutDetail: React.FC = () => {
   const { subpage } = useParams<{ subpage: string }>();
@@ -8,6 +42,12 @@ const AboutDetail: React.FC = () => {
 
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '', orgName: '' });
+
+  // Filters State
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [selectedState, setSelectedState] = useState('All States');
+  const [selectedDistrict, setSelectedDistrict] = useState('All Districts');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -105,32 +145,232 @@ const AboutDetail: React.FC = () => {
   );
 
   // 4. Team Directory Layout
-  const renderTeam = () => (
-    <div>
-      <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
-        <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>Board Directors & Operations Head</h3>
-        <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '25px' }}>
-          Our active board oversees block-level logistics, campaign coordination, and school smart panel deployments.
-        </p>
+  const renderTeam = () => {
+    // 6-7 Trustees
+    const trustees = [
+      { name: "Mr. Dinesh Pahwa", role: "Founder & Chief Trustee", bio: "20+ years coordinating rural health diagnostics and primary digital education drives." },
+      { name: "Sanjay Verma", role: "Co-Founder & Director", bio: "Retired academician managing Smart Classrooms and educational curriculum mapping." },
+      { name: "Ravi Dhakre", role: "Secretary & Head of Operations", bio: "Leads database coordination, administration desk, and logistical supply chain." },
+      { name: "Dr. Anita Deshmukh", role: "Advisory Board Member & Clinical Head", bio: "Directs Self Help Group bank linkages and organizes rural medical diagnostic camps." },
+      { name: "Col. Satish Kumar (Retd.)", role: "Director of Supply Chain & Drives", bio: "Manages logistical deployment of sanitary pad stocks and smart classrooms." },
+      { name: "Sunita Rao", role: "Director of Women's Welfare", bio: "Coordinates training programs for women distributors under Life Sakhi initiative." },
+      { name: "Kiran Sharma", role: "Board Member & Strategic Advisor", bio: "Formulates corporate partnership strategies and CSR alliance guidelines." }
+    ];
 
-        {/* Team Profile Grid */}
-        <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 700 }}>Management Profiles</h4>
-        <div className="grid-3" style={{ gap: '20px', marginBottom: '30px' }}>
-          {[
-            { name: "Mr. Dinesh Pahwa", role: "Founder & Chief Trustee", bio: "20+ years coordinating rural health diagnostics." },
-            { name: "Sanjay Verma", role: "Co-Founder & Director", bio: "Retired academician managing Smart Classrooms." },
-            { name: "Anita Deshmukh", role: "State Coordinator (MH)", bio: "Directs Self Help Group bank linkages." }
-          ].map((member, idx) => (
-            <div key={idx} className="card" style={{ padding: '20px', background: 'var(--color-white)', borderLeft: '4px solid var(--color-green)' }}>
-              <h5 style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '4px' }}>{member.name}</h5>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-green)', fontWeight: 700, marginBottom: '10px' }}>{member.role}</div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', margin: 0 }}>{member.bio}</p>
+    // Load registered users from localStorage database to sync manually added coordinators/volunteers
+    const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+    const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+    const dbMembers = allUsers
+      .filter((u: any) => u.role !== 'admin' && u.status === 'active')
+      .map((u: any) => ({
+        name: u.displayName,
+        role: u.role,
+        state: u.state || "Uttar Pradesh",
+        district: u.address || "Agra",
+        phone: u.phone || "+91 99999 88888",
+        email: u.email
+      }));
+
+    // Combine seeded list and custom local storage list
+    const combinedList = [...DIRECTORY_MEMBERS, ...dbMembers];
+
+    // Filter combined members based on active selections
+    const filteredMembers = combinedList.filter(member => {
+      // 1. Role Filter
+      if (selectedRole !== 'all') {
+        if (selectedRole === 'partners') {
+          const partnerRoles = ['csr_partner', 'corporate_partner', 'ngo_partner', 'doctor', 'school', 'hospital'];
+          if (!partnerRoles.includes(member.role)) return false;
+        } else if (selectedRole === 'state_coordinator') {
+          if (member.role !== 'state_coordinator') return false;
+        } else {
+          if (member.role !== selectedRole) return false;
+        }
+      }
+
+      // 2. State Filter
+      if (selectedState !== 'All States') {
+        if (member.state !== selectedState) return false;
+      }
+
+      // 3. District Filter
+      if (selectedDistrict !== 'All Districts') {
+        if (member.district !== selectedDistrict) return false;
+      }
+
+      // 4. Text Search (name or mobile number)
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const matchesName = member.name.toLowerCase().includes(query);
+        const matchesPhone = member.phone.includes(query);
+        if (!matchesName && !matchesPhone) return false;
+      }
+
+      return true;
+    });
+
+    // Handle state selection change
+    const handleStateChange = (state: string) => {
+      setSelectedState(state);
+      setSelectedDistrict('All Districts'); // Reset district
+    };
+
+    const getRoleLabel = (roleKey: string) => {
+      switch (roleKey) {
+        case 'volunteer': return 'Volunteer';
+        case 'district_coordinator': return 'District Coordinator';
+        case 'state_coordinator': return 'State Coordinator';
+        case 'csr_partner': return 'CSR Partner';
+        case 'corporate_partner': return 'Hiring Partner';
+        case 'doctor': return 'Clinical Volunteer';
+        default: return 'Team Member';
+      }
+    };
+
+    return (
+      <div>
+        {/* Trustees Section */}
+        <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+          <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 800 }}>Board of Trustees & Advisory Council</h3>
+          <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '30px' }}>
+            Our advisory board is composed of dedicated leaders from public health, primary education, civil services, and corporate sectors who govern the strategic mission of Life Changing Trust.
+          </p>
+
+          <div className="grid-3" style={{ gap: '20px', marginBottom: '10px' }}>
+            {trustees.map((member, idx) => (
+              <div key={idx} className="card" style={{ padding: '24px', background: 'var(--color-white)', borderLeft: '4px solid var(--color-green)', boxShadow: 'var(--shadow-sm)' }}>
+                <h5 style={{ fontWeight: 800, color: 'var(--color-primary)', marginBottom: '4px', fontSize: '1rem' }}>{member.name}</h5>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-green)', fontWeight: 800, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{member.role}</div>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', margin: 0, lineHeight: '1.5' }}>{member.bio}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Directory Section */}
+        <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+          <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '10px', fontWeight: 800 }}>Search Team Directory</h3>
+          <p className="about-text" style={{ fontSize: '0.95rem', color: 'var(--color-muted)', marginBottom: '25px' }}>
+            Find active volunteers, coordinators, and corporate partners across India. Filter by category, state, and district to find representatives in your area.
+          </p>
+
+          {/* Toggle Filter Tabs */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '25px', padding: '6px', background: '#f4f6f9', borderRadius: '8px' }}>
+            {[
+              { id: 'all', label: 'All Members' },
+              { id: 'volunteer', label: 'Volunteers' },
+              { id: 'district_coordinator', label: 'District Coordinators' },
+              { id: 'state_coordinator', label: 'State Partners' },
+              { id: 'partners', label: 'CSR/Hiring Partners' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedRole(tab.id)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  background: selectedRole === tab.id ? 'var(--color-primary)' : 'transparent',
+                  color: selectedRole === tab.id ? '#ffffff' : 'var(--color-muted)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Filters Row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '30px' }}>
+            {/* Select State */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '6px' }}>Select State</label>
+              <div style={{ position: 'relative' }}>
+                <MapPin size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--color-muted)' }} />
+                <select 
+                  value={selectedState} 
+                  onChange={(e) => handleStateChange(e.target.value)} 
+                  style={{ width: '100%', padding: '10px 10px 10px 36px', border: '1px solid #dcdfe6', borderRadius: '6px', fontSize: '0.85rem', outline: 'none' }}
+                >
+                  <option value="All States">All States (India)</option>
+                  {Object.keys(STATE_DISTRICTS).filter(s => s !== "All States").map(stateName => (
+                    <option key={stateName} value={stateName}>{stateName}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-          ))}
+
+            {/* Select District */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '6px' }}>Select District</label>
+              <div style={{ position: 'relative' }}>
+                <MapPin size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--color-muted)' }} />
+                <select 
+                  value={selectedDistrict} 
+                  onChange={(e) => setSelectedDistrict(e.target.value)} 
+                  disabled={selectedState === 'All States'}
+                  style={{ width: '100%', padding: '10px 10px 10px 36px', border: '1px solid #dcdfe6', borderRadius: '6px', fontSize: '0.85rem', outline: 'none', background: selectedState === 'All States' ? '#f5f7fa' : '#fff' }}
+                >
+                  <option value="All Districts">All Districts</option>
+                  {selectedState !== 'All States' && (STATE_DISTRICTS[selectedState] || []).map(dist => (
+                    <option key={dist} value={dist}>{dist}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Search Input */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '6px' }}>Search by Name / Mobile</label>
+              <div style={{ position: 'relative' }}>
+                <Search size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--color-muted)' }} />
+                <input 
+                  type="text" 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  placeholder="e.g. Dinesh Kumar..." 
+                  style={{ width: '100%', padding: '10px 10px 10px 36px', border: '1px solid #dcdfe6', borderRadius: '6px', fontSize: '0.85rem', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Directory Grid */}
+          <div style={{ borderTop: '1px solid #eee', paddingTop: '25px' }}>
+            {filteredMembers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', background: '#f8f9fa', borderRadius: '8px', color: 'var(--color-muted)' }}>
+                <Users size={36} style={{ marginBottom: '10px', color: 'var(--color-primary)', opacity: 0.5 }} />
+                <h5 style={{ fontWeight: 700, margin: '0 0 5px 0', color: 'var(--color-primary)' }}>No Members Found</h5>
+                <p style={{ margin: 0, fontSize: '0.8rem' }}>No team members match your active role, state, district, or search string.</p>
+              </div>
+            ) : (
+              <div className="grid-3" style={{ gap: '20px' }}>
+                {filteredMembers.map((member, idx) => (
+                  <div key={idx} className="card" style={{ padding: '20px', background: '#ffffff', border: '1px solid #e1e4e8', borderRadius: '8px', position: 'relative' }}>
+                    <h5 style={{ fontWeight: 800, color: 'var(--color-primary)', margin: '0 0 4px 0', fontSize: '0.95rem' }}>{member.name}</h5>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase' }}>
+                      {getRoleLabel(member.role)}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <MapPin size={12} style={{ color: 'var(--color-green)' }} />
+                      <span>{member.district}, {member.state}</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
+                      <div>📧 {member.email}</div>
+                      <div>📞 {member.phone}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // 5. Partners Layout
   const renderPartners = () => (
