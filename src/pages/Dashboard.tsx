@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { userProfile, logout } = useAuth();
+  const { userProfile, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -19,6 +19,14 @@ const Dashboard: React.FC = () => {
   const [salesLog, setSalesLog] = useState({ date: new Date().toISOString().split('T')[0], packs: '5', earnings: '60', buyer: 'Individual' });
   const [campForm, setCampForm] = useState({ date: '', location: '', specialist: '', doctorsRequired: '2' });
   const [diagnosticsForm, setDiagnosticsForm] = useState({ patientName: '', age: '', symptom: 'Anemia', prescription: '', referralRequired: 'No' });
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--color-light-gray)' }}>
+        <div style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--color-primary)', fontFamily: 'Outfit, sans-serif' }}>Loading Portal Session...</div>
+      </div>
+    );
+  }
 
   if (!userProfile) {
     return <Navigate to="/login" replace />;
