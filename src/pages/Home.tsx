@@ -150,7 +150,7 @@ const Home: React.FC = () => {
                 className="about-image" 
                 style={{ objectFit: 'contain', background: '#ffffff', padding: '20px' }}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://placehold.co/600x480/ffffff/0a3c8c?text=Life+Changing+Trust";
+                  (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='480' viewBox='0 0 600 480'><defs><linearGradient id='gAbout'><stop offset='0%' stop-color='rgb(10,60,140)'/><stop offset='100%' stop-color='rgb(140,198,62)'/></linearGradient></defs><rect width='600' height='480' fill='url(%23gAbout)' rx='10'/><circle cx='300' cy='200' r='60' fill='white' opacity='0.15'/><path d='M300,160 L320,200 L360,200 L330,225 L345,265 L300,240 L255,265 L270,225 L240,200 L280,200 Z' fill='white' opacity='0.8'/><text x='300' y='320' fill='white' font-family='sans-serif' font-size='24' font-weight='bold' text-anchor='middle'>Life Changing Trust</text><text x='300' y='355' fill='white' font-family='sans-serif' font-size='14' opacity='0.8' text-anchor='middle'>Educational &amp; Charitable Trust</text></svg>";
                 }}
               />
               <div className="experience-badge">
@@ -214,7 +214,7 @@ const Home: React.FC = () => {
                   alt="Life Sakhi Sanitary Pads" 
                   className="life-sakhi-banner-img"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "https://placehold.co/600x500/8cc63e/ffffff?text=Life+Sakhi+Sanitary+Pads";
+                    (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='500' viewBox='0 0 600 500'><defs><linearGradient id='gSakhi'><stop offset='0%' stop-color='rgb(140,198,62)'/><stop offset='100%' stop-color='rgb(10,60,140)'/></linearGradient></defs><rect width='600' height='500' fill='url(%23gSakhi)'/><circle cx='300' cy='200' r='70' fill='white' opacity='0.15'/><path d='M300,150 C260,100 210,180 300,260 C390,180 340,100 300,150 Z' fill='white' opacity='0.8'/><text x='300' y='340' fill='white' font-family='sans-serif' font-size='26' font-weight='bold' text-anchor='middle'>Life Sakhi Sanitary Pads</text><text x='300' y='375' fill='white' font-family='sans-serif' font-size='14' opacity='0.8' text-anchor='middle'>Har Mahila Ki Sehat Ka Saathi</text></svg>";
                   }}
                 />
               </div>
@@ -334,7 +334,7 @@ const Home: React.FC = () => {
                 alt="Women Working" 
                 style={{ borderRadius: 'var(--border-radius-lg)', boxShadow: 'var(--shadow-xl)', width: '100%', height: '450px', objectFit: 'cover' }}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://placehold.co/600x450/0a3c8c/ffffff?text=Women+Working";
+                  (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='450' viewBox='0 0 600 450'><defs><linearGradient id='gWork' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='rgb(10,60,140)'/><stop offset='100%' stop-color='rgb(140,198,62)'/></linearGradient></defs><rect width='600' height='450' fill='url(%23gWork)' rx='10'/><circle cx='300' cy='180' r='60' fill='white' opacity='0.15'/><path d='M300,145 C280,125 250,145 300,195 C350,145 320,125 300,145 Z' fill='white' opacity='0.8'/><text x='300' y='290' fill='white' font-family='sans-serif' font-size='24' font-weight='bold' text-anchor='middle'>Women Working &amp; Empowerment</text><text x='300' y='325' fill='white' font-family='sans-serif' font-size='14' opacity='0.8' text-anchor='middle'>Life Changing Educational &amp; Charitable Trust</text></svg>";
                 }}
               />
             </div>
@@ -385,7 +385,7 @@ const Home: React.FC = () => {
 
           <div className="awareness-grid">
             <div className="awareness-card">
-              <img src="/assets/health_menstrual.jpg" className="awareness-img" alt="Menstrual Hygiene" onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x200/0a3c8c/ffffff?text=Menstrual+Hygiene"; }} />
+              <img src="/assets/health_menstrual.jpg" className="awareness-img" alt="Menstrual Hygiene" onError={(e) => { (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'><defs><linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='rgb(10,60,140)'/><stop offset='100%' stop-color='rgb(140,198,62)'/></linearGradient></defs><rect width='400' height='200' fill='url(%23g1)'/><circle cx='200' cy='80' r='35' fill='white' opacity='0.15'/><path d='M200,60 C180,45 160,65 200,105 C240,65 220,45 200,60 Z' fill='white' opacity='0.9'/><text x='200' y='150' fill='white' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle'>Menstrual Hygiene</text></svg>"; }} />
               <div className="awareness-info" style={{ textAlign: 'left' }}>
                 <span className="awareness-tag">Hygiene</span>
                 <h4 style={{ marginBottom: '8px' }}>Menstrual Hygiene</h4>
@@ -393,7 +393,7 @@ const Home: React.FC = () => {
               </div>
             </div>
             <div className="awareness-card">
-              <img src="/assets/health_nutrition.jpg" className="awareness-img" alt="Nutrition" onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x200/8cc63e/ffffff?text=Nutrition+Support"; }} />
+              <img src="/assets/health_nutrition.jpg" className="awareness-img" alt="Nutrition" onError={(e) => { (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'><defs><linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='rgb(140,198,62)'/><stop offset='100%' stop-color='rgb(10,60,140)'/></linearGradient></defs><rect width='400' height='200' fill='url(%23g2)'/><circle cx='200' cy='80' r='35' fill='white' opacity='0.15'/><path d='M200,55 C210,55 220,65 220,75 C220,95 200,105 200,105 C200,105 180,95 180,75 C180,65 190,55 200,55 Z' fill='white' opacity='0.9'/><text x='200' y='150' fill='white' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle'>Nutrition Support</text></svg>"; }} />
               <div className="awareness-info" style={{ textAlign: 'left' }}>
                 <span className="awareness-tag">Diet</span>
                 <h4 style={{ marginBottom: '8px' }}>Nutrition Planning</h4>
@@ -401,7 +401,7 @@ const Home: React.FC = () => {
               </div>
             </div>
             <div className="awareness-card">
-              <img src="/assets/health_pcod.jpg" className="awareness-img" alt="PCOD Wellness" onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x200/0a3c8c/ffffff?text=PCOD+Wellness"; }} />
+              <img src="/assets/health_pcod.jpg" className="awareness-img" alt="PCOD Wellness" onError={(e) => { (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'><defs><linearGradient id='g3' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='rgb(10,60,140)'/><stop offset='100%' stop-color='rgb(140,198,62)'/></linearGradient></defs><rect width='400' height='200' fill='url(%23g3)'/><circle cx='200' cy='80' r='35' fill='white' opacity='0.15'/><path d='M200,50 L210,70 L232,70 L215,83 L221,105 L200,92 L179,105 L185,83 L168,70 L190,70 Z' fill='white' opacity='0.9'/><text x='200' y='150' fill='white' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle'>PCOD &amp; Wellness</text></svg>"; }} />
               <div className="awareness-info" style={{ textAlign: 'left' }}>
                 <span className="awareness-tag">Wellness</span>
                 <h4 style={{ marginBottom: '8px' }}>PCOD & Women Wellness</h4>
@@ -409,7 +409,7 @@ const Home: React.FC = () => {
               </div>
             </div>
             <div className="awareness-card">
-              <img src="/assets/health_anemia.jpg" className="awareness-img" alt="Anemia" onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x200/8cc63e/ffffff?text=Anemia+Prevention"; }} />
+              <img src="/assets/health_anemia.jpg" className="awareness-img" alt="Anemia" onError={(e) => { (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'><defs><linearGradient id='g4' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='rgb(140,198,62)'/><stop offset='100%' stop-color='rgb(10,60,140)'/></linearGradient></defs><rect width='400' height='200' fill='url(%23g4)'/><circle cx='200' cy='80' r='35' fill='white' opacity='0.15'/><path d='M200,52 L225,65 L225,90 L200,105 L175,90 L175,65 Z' fill='white' opacity='0.9'/><text x='200' y='150' fill='white' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle'>Anemia Prevention</text></svg>"; }} />
               <div className="awareness-info" style={{ textAlign: 'left' }}>
                 <span className="awareness-tag">Prevention</span>
                 <h4 style={{ marginBottom: '8px' }}>Anemia Eradication</h4>
@@ -444,7 +444,7 @@ const Home: React.FC = () => {
                     alt={project.title} 
                     style={{ width: '100%', height: '220px', objectFit: 'cover' }}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://placehold.co/400x220/0a3c8c/ffffff?text=Project+${i+1}`;
+                       (e.target as HTMLImageElement).src = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='220'><defs><linearGradient id='gProj'><stop offset='0%' stop-color='rgb(10,60,140)'/><stop offset='100%' stop-color='rgb(140,198,62)'/></linearGradient></defs><rect width='400' height='220' fill='url(%23gProj)'/><circle cx='200' cy='90' r='30' fill='white' opacity='0.15'/><path d='M200,75 L215,105 L185,105 Z' fill='white' opacity='0.8'/><text x='200' y='160' fill='white' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle'>Project ${i + 1}</text></svg>`;
                     }}
                   />
                   <div style={{ padding: '24px' }}>
@@ -518,7 +518,7 @@ const Home: React.FC = () => {
           <div className="gallery-grid">
             {filteredGallery.map((item) => (
               <div className="gallery-card" key={item.id}>
-                <img src={item.url} alt={item.title} onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x300/0a3c8c/ffffff?text=Life+Sakhi"; }} />
+                <img src={item.url} alt={item.title} onError={(e) => { (e.target as HTMLImageElement).src = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><defs><linearGradient id='gGal'><stop offset='0%' stop-color='rgb(10,60,140)'/><stop offset='100%' stop-color='rgb(140,198,62)'/></linearGradient></defs><rect width='400' height='300' fill='url(%23gGal)'/><circle cx='200' cy='120' r='40' fill='white' opacity='0.15'/><path d='M200,100 C190,100 180,110 180,120 C180,140 200,150 200,150 C200,160 220,150 220,130 C220,120 210,110 200,110' fill='white' opacity='0.8'/><text x='200' y='210' fill='white' font-family='sans-serif' font-size='22' font-weight='bold' text-anchor='middle'>Life Sakhi</text><text x='200' y='240' fill='white' font-family='sans-serif' font-size='14' opacity='0.7' text-anchor='middle'>Visual Gallery</text></svg>`; }} />
                 <div className="gallery-overlay">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.title}</span>
