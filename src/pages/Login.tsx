@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, KeyRound, User } from 'lucide-react';
+import { Mail, Lock, KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
@@ -8,13 +8,11 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   const [loginMethod, setLoginMethod] = useState<'email' | 'mobile'>('email');
-  const [name, setName] = useState('Ravi Kumar');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
-  const [selectedRole, setSelectedRole] = useState('user');
 
   const [loading, setLoading] = useState(false);
 
@@ -23,8 +21,18 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await loginWithEmail(email, password);
-      // In mock mode, update profile with selected role from helper dropdown
-      mockLogin(email, selectedRole, name);
+      
+      // Automatic role lookup in our users list
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      const dbUser = allUsers.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+
+      if (dbUser) {
+        mockLogin(email, dbUser.role, dbUser.displayName);
+      } else {
+        // Fallback for new email
+        mockLogin(email, 'user', email.split('@')[0]);
+      }
       navigate('/dashboard');
     } catch (err) {
       alert("Failed to login. Please check credentials.");
@@ -37,6 +45,17 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await loginWithGoogle();
+      
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      const googleEmail = "googleuser@gmail.com";
+      const dbUser = allUsers.find((u: any) => u.email.toLowerCase() === googleEmail.toLowerCase());
+
+      if (dbUser) {
+        mockLogin(googleEmail, dbUser.role, dbUser.displayName);
+      } else {
+        mockLogin(googleEmail, 'user', 'Google Supporter');
+      }
       navigate('/dashboard');
     } catch (err) {
       alert("Google Login failed.");
@@ -48,35 +67,26 @@ const Login: React.FC = () => {
   const handleMobileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpSent) {
-      // Simulate sending OTP
       setOtpSent(true);
       alert("OTP sent to mobile: +91 " + phone + ". Enter '123456' to confirm.");
     } else {
       if (otpCode === '123456') {
-        mockLogin(`${phone}@mobile.lifechangingtrust.org`, selectedRole, name);
+        const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+        const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+        const dbUser = allUsers.find((u: any) => u.phone && u.phone.replace(/\s+/g, '').includes(phone));
+
+        const userEmail = `${phone}@mobile.lifechangingtrust.org`;
+        if (dbUser) {
+          mockLogin(dbUser.email || userEmail, dbUser.role, dbUser.displayName);
+        } else {
+          mockLogin(userEmail, 'user', `User ${phone}`);
+        }
         navigate('/dashboard');
       } else {
         alert("Invalid OTP code. Please enter '123456' to simulate success.");
       }
     }
   };
-
-  const roles = [
-    { code: 'admin', name: 'Admin / Trust Management' },
-    { code: 'user', name: 'Normal User' },
-    { code: 'volunteer', name: 'Volunteer' },
-    { code: 'donor', name: 'Donor' },
-    { code: 'women_distributor', name: 'Women Distributor (Life Sakhi)' },
-    { code: 'district_coordinator', name: 'District Coordinator' },
-    { code: 'block_coordinator', name: 'Block Coordinator' },
-    { code: 'state_coordinator', name: 'State Coordinator' },
-    { code: 'csr_partner', name: 'CSR Partner' },
-    { code: 'corporate_partner', name: 'Corporate Partner' },
-    { code: 'hospital', name: 'Hospital Partner' },
-    { code: 'school', name: 'School Partner' },
-    { code: 'ngo_partner', name: 'NGO Partner' },
-    { code: 'doctor', name: 'Doctor / Medical Volunteer' }
-  ];
 
   return (
     <div style={{ background: 'var(--color-light-gray)', minHeight: '80vh', padding: '60px 0', display: 'flex', alignItems: 'center' }}>
@@ -85,14 +95,6 @@ const Login: React.FC = () => {
         <p style={{ textAlign: 'center', color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '25px' }}>
           Access your coordinator dashboard, order records, or tax receipts.
         </p>
-
-        {/* Admin Credentials Info Box */}
-        <div style={{ background: 'rgba(10, 60, 140, 0.05)', border: '1px solid rgba(10, 60, 140, 0.15)', borderRadius: '6px', padding: '12px 15px', marginBottom: '20px', fontSize: '0.85rem', color: 'var(--color-primary)' }}>
-          <h5 style={{ margin: '0 0 5px 0', fontWeight: 'bold', color: 'var(--color-primary)' }}>🔑 Test Admin Login:</h5>
-          <div><strong>Email:</strong> admin@lifechangingtrust.org</div>
-          <div><strong>Password:</strong> admin123</div>
-          <div style={{ fontSize: '0.75rem', marginTop: '4px', opacity: 0.8 }}>*Use these credentials or the dropdown helper to log in as Admin.</div>
-        </div>
 
         {/* Toggle Login Method */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', background: 'var(--color-light-gray)', padding: '4px', borderRadius: 'var(--border-radius-sm)' }}>
@@ -110,38 +112,6 @@ const Login: React.FC = () => {
           >
             Mobile & OTP
           </button>
-        </div>
-
-        {/* Full Name Input */}
-        <div className="form-group">
-          <label className="form-label">Full Name</label>
-          <div style={{ position: 'relative' }}>
-            <User size={16} style={{ position: 'absolute', left: '16px', top: '15px', color: 'var(--color-muted)' }} />
-            <input
-              type="text"
-              className="form-control"
-              style={{ paddingLeft: '45px' }}
-              placeholder="e.g. Ravi Kumar"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        {/* Auth Role Select Helper */}
-        <div className="form-group">
-          <label className="form-label">Sign in as Role (Simulated)</label>
-          <select 
-            value={selectedRole} 
-            onChange={(e) => setSelectedRole(e.target.value)} 
-            className="form-control form-select"
-            style={{ background: 'rgba(140, 198, 62, 0.08)', borderColor: 'var(--color-green)' }}
-          >
-            {roles.map(r => (
-              <option key={r.code} value={r.code}>{r.name}</option>
-            ))}
-          </select>
         </div>
 
         {loginMethod === 'email' ? (

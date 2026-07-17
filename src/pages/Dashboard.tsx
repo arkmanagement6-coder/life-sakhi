@@ -185,8 +185,8 @@ const Dashboard: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const getRoleDisplayName = () => {
-    switch (userProfile.role) {
+  const getRoleDisplayName = (roleKey = userProfile?.role) => {
+    switch (roleKey) {
       case 'admin':
         return 'System Admin';
       case 'women_distributor':
@@ -203,6 +203,12 @@ const Dashboard: React.FC = () => {
         return 'CSR Partner';
       case 'corporate_partner':
         return 'Corporate Partner';
+      case 'hospital':
+        return 'Hospital Partner';
+      case 'school':
+        return 'School Partner';
+      case 'ngo_partner':
+        return 'NGO Partner';
       case 'doctor':
         return 'Clinical Volunteer / Doctor';
       case 'volunteer':
@@ -293,6 +299,9 @@ const Dashboard: React.FC = () => {
       case 'donor':
       case 'csr_partner':
       case 'corporate_partner':
+      case 'hospital':
+      case 'school':
+      case 'ngo_partner':
         return [
           ...common,
           { id: 'tax_certificates', label: '80G Certificates', icon: <FileText size={18} /> },
@@ -410,7 +419,14 @@ const Dashboard: React.FC = () => {
           </div>
         );
       }
-      if (role === 'donor' || role === 'csr_partner' || role === 'corporate_partner') {
+      if (
+        role === 'donor' || 
+        role === 'csr_partner' || 
+        role === 'corporate_partner' || 
+        role === 'hospital' || 
+        role === 'school' || 
+        role === 'ngo_partner'
+      ) {
         return (
           <div className="grid-3" style={{ gap: '20px', marginBottom: '30px' }}>
             <div className="stat-card card-green">
@@ -955,12 +971,7 @@ const Dashboard: React.FC = () => {
                           <td style={{ padding: '12px', fontWeight: 600 }}>{u.displayName}</td>
                           <td style={{ padding: '12px' }}>
                             <span style={{ background: 'rgba(10, 60, 140, 0.08)', color: 'var(--color-primary)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
-                              {u.role === 'women_distributor' ? 'Life Sakhi Distributor' :
-                               u.role === 'block_coordinator' ? 'Block Coordinator' :
-                               u.role === 'district_coordinator' ? 'District Coordinator' :
-                               u.role === 'state_coordinator' ? 'State Coordinator' :
-                               u.role === 'doctor' ? 'Clinical Doctor' :
-                               u.role === 'volunteer' ? 'Active Volunteer' : u.role}
+                              {getRoleDisplayName(u.role)}
                             </span>
                           </td>
                           <td style={{ padding: '12px' }}>{u.email}</td>
@@ -1218,13 +1229,7 @@ const Dashboard: React.FC = () => {
                         <td style={{ padding: '12px', fontWeight: 600 }}>{u.displayName}</td>
                         <td style={{ padding: '12px' }}>
                           <span style={{ textTransform: 'capitalize' }}>
-                            {u.role === 'admin' ? 'System Admin' :
-                             u.role === 'women_distributor' ? 'Life Sakhi Distributor' :
-                             u.role === 'block_coordinator' ? 'Block Coordinator' :
-                             u.role === 'district_coordinator' ? 'District Coordinator' :
-                             u.role === 'state_coordinator' ? 'State Coordinator' :
-                             u.role === 'doctor' ? 'Clinical Doctor' :
-                             u.role === 'volunteer' ? 'Active Volunteer' : u.role}
+                            {getRoleDisplayName(u.role)}
                           </span>
                         </td>
                         <td style={{ padding: '12px' }}>{u.email}</td>
