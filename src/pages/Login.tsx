@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, KeyRound } from 'lucide-react';
+import { Mail, Lock, KeyRound, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
@@ -8,6 +8,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   const [loginMethod, setLoginMethod] = useState<'email' | 'mobile'>('email');
+  const [name, setName] = useState('Ravi Kumar');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
@@ -23,7 +24,7 @@ const Login: React.FC = () => {
     try {
       await loginWithEmail(email, password);
       // In mock mode, update profile with selected role from helper dropdown
-      mockLogin(email, selectedRole);
+      mockLogin(email, selectedRole, name);
       navigate('/dashboard');
     } catch (err) {
       alert("Failed to login. Please check credentials.");
@@ -52,7 +53,7 @@ const Login: React.FC = () => {
       alert("OTP sent to mobile: +91 " + phone + ". Enter '123456' to confirm.");
     } else {
       if (otpCode === '123456') {
-        mockLogin(`${phone}@mobile.lifechangingtrust.org`, selectedRole);
+        mockLogin(`${phone}@mobile.lifechangingtrust.org`, selectedRole, name);
         navigate('/dashboard');
       } else {
         alert("Invalid OTP code. Please enter '123456' to simulate success.");
@@ -100,6 +101,23 @@ const Login: React.FC = () => {
           >
             Mobile & OTP
           </button>
+        </div>
+
+        {/* Full Name Input */}
+        <div className="form-group">
+          <label className="form-label">Full Name</label>
+          <div style={{ position: 'relative' }}>
+            <User size={16} style={{ position: 'absolute', left: '16px', top: '15px', color: 'var(--color-muted)' }} />
+            <input
+              type="text"
+              className="form-control"
+              style={{ paddingLeft: '45px' }}
+              placeholder="e.g. Ravi Kumar"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
         {/* Auth Role Select Helper */}

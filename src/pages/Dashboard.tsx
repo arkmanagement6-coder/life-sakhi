@@ -528,8 +528,9 @@ const Dashboard: React.FC = () => {
               <User size={16} />
             </div>
             <div style={{ overflow: 'hidden' }}>
-              <h6 style={{ margin: 0, fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</h6>
-              <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{email}</span>
+              <h6 style={{ margin: 0, fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: '#ffffff' }}>{name}</h6>
+              <div style={{ fontSize: '0.75rem', color: '#8CC63E', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{getRoleDisplayName()}</div>
+              <span style={{ fontSize: '0.65rem', opacity: 0.5, display: 'block', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{email}</span>
             </div>
           </div>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', fontSize: '0.85rem', marginBottom: '10px' }}>
@@ -575,7 +576,9 @@ const Dashboard: React.FC = () => {
               <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--color-primary)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <User size={12} />
               </div>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-primary)' }}>{name}</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-primary)' }}>
+                {name} <span style={{ opacity: 0.6, fontSize: '0.75rem', fontWeight: 400 }}>({getRoleDisplayName()})</span>
+              </span>
             </div>
 
             {/* Direct Logout */}

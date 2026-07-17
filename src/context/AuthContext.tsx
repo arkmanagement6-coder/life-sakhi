@@ -19,7 +19,7 @@ interface AuthContextProps {
   loginWithEmail: (email: string, pass: string) => Promise<void>;
   registerWithEmail: (email: string, pass: string, name: string, role: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
-  mockLogin: (email: string, role: string) => void;
+  mockLogin: (email: string, role: string, name: string) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -90,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (e: any) {
       console.warn("Firebase Google login failed/not configured. Falling back to mock login.", e);
-      mockLogin("google.user@example.com", "donor");
+      mockLogin("google.user@example.com", "donor", "Google User");
     }
   };
 
@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e: any) {
       console.warn("Firebase Email login failed/not configured. Checking mock credentials.", e);
       // Fallback to mock session
-      mockLogin(email, "user");
+      mockLogin(email, "user", "");
     }
   };
 
@@ -146,11 +146,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const mockLogin = (email: string, role: string) => {
+  const mockLogin = (email: string, role: string, name: string) => {
     const mockUser: UserDoc = {
       uid: "mock-uid-12345",
       email,
-      displayName: email.split('@')[0].toUpperCase(),
+      displayName: name || email.split('@')[0].toUpperCase(),
       phone: "+91 99999 88888",
       role: role as any,
       status: 'active',
