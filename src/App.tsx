@@ -46,11 +46,12 @@ const ScrollToTop = () => {
 const AppContent: React.FC = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const isDashboardPage = location.pathname.startsWith('/dashboard');
 
   return (
     <div className={isHomePage ? 'home-page-layout' : 'inner-page-layout'} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <ScrollToTop />
-      <Header />
+      {!isDashboardPage && <Header />}
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -74,7 +75,7 @@ const AppContent: React.FC = () => {
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
-      <Footer />
+      {!isDashboardPage && <Footer />}
     </div>
   );
 };
