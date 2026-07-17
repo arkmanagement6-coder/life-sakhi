@@ -21,6 +21,7 @@ const Dashboard: React.FC = () => {
   const [profileEmail, setProfileEmail] = useState(userProfile?.email || '');
   const [profilePhone, setProfilePhone] = useState(userProfile?.phone || '');
   const [profileAddress, setProfileAddress] = useState(userProfile?.address || 'Not Configured');
+  const [profileImage, setProfileImage] = useState(userProfile?.profileImageUrl || '');
   const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
 
   // Admin user list state
@@ -42,13 +43,14 @@ const Dashboard: React.FC = () => {
       setProfileEmail(userProfile.email || '');
       setProfilePhone(userProfile.phone || '');
       setProfileAddress(userProfile.address || 'Not Configured');
+      setProfileImage(userProfile.profileImageUrl || '');
     }
   }, [userProfile]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await updateUserProfileDetails(profileEmail, profilePhone, profileAddress);
+      await updateUserProfileDetails(profileEmail, profilePhone, profileAddress, profileImage);
       setProfileSaveSuccess(true);
       setIsEditingProfile(false);
       loadAllUsers(); // Reload lists
@@ -485,6 +487,19 @@ const Dashboard: React.FC = () => {
 
             {!isEditingProfile ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+                  {userProfile?.profileImageUrl ? (
+                    <img 
+                      src={userProfile.profileImageUrl} 
+                      alt="Profile" 
+                      style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--color-green)' }} 
+                    />
+                  ) : (
+                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(10, 60, 140, 0.1)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 800 }}>
+                      {name ? name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  )}
+                </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
                   <span style={{ color: 'var(--color-muted)' }}>Full Name:</span>
                   <strong>{name}</strong>
@@ -516,6 +531,30 @@ const Dashboard: React.FC = () => {
             ) : (
               <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
                 <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Profile Photo</label>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setProfileImage(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }} 
+                    style={{ fontSize: '0.8rem', width: '100%', padding: '4px 0' }} 
+                  />
+                  {profileImage && (
+                    <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <img src={profileImage} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-green)' }}>Photo selected</span>
+                    </div>
+                  )}
+                </div>
+                <div>
                   <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Full Name (Cannot be changed)</label>
                   <input type="text" value={name} disabled style={{ width: '100%', padding: '8px', border: '1px solid var(--color-gray-light)', borderRadius: '4px', background: '#f4f6f9', color: '#888', cursor: 'not-allowed' }} />
                 </div>
@@ -537,6 +576,7 @@ const Dashboard: React.FC = () => {
                     setProfileEmail(userProfile?.email || '');
                     setProfilePhone(userProfile?.phone || '');
                     setProfileAddress(userProfile?.address || 'Not Configured');
+                    setProfileImage(userProfile?.profileImageUrl || '');
                     setIsEditingProfile(false);
                   }} style={{ flex: 1, padding: '8px' }}>Cancel</button>
                 </div>

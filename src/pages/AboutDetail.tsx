@@ -2,21 +2,14 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Send, Shield, Search, MapPin, Users } from 'lucide-react';
 
+import indiaData from '../utils/states-and-districts.json';
+
 const STATE_DISTRICTS: Record<string, string[]> = {
-  "All States": [],
-  "Uttar Pradesh": ["Agra", "Mathura", "Lucknow", "Noida", "Kanpur", "Varanasi"],
-  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik"],
-  "Delhi": ["New Delhi", "North Delhi", "South Delhi", "West Delhi"],
-  "Haryana": ["Rohtak", "Gurugram", "Faridabad", "Panipat", "Ambala"],
-  "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"],
-  "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi"],
-  "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior", "Jabalpur"],
-  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
-  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem"],
-  "Punjab": ["Amritsar", "Ludhiana", "Jalandhar", "Patiala"],
-  "Bihar": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur"],
-  "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Asansol"]
+  "All States": []
 };
+indiaData.states.forEach((item: any) => {
+  STATE_DISTRICTS[item.state] = item.districts;
+});
 
 const DIRECTORY_MEMBERS = [
   { name: "Dinesh Kumar", role: "volunteer", state: "Uttar Pradesh", district: "Agra", phone: "+91 99887 76655", email: "dinesh@example.com" },
@@ -168,7 +161,8 @@ const AboutDetail: React.FC = () => {
         state: u.state || "Uttar Pradesh",
         district: u.address || "Agra",
         phone: u.phone || "+91 99999 88888",
-        email: u.email
+        email: u.email,
+        profileImageUrl: u.profileImageUrl
       }));
 
     // Combine seeded list and custom local storage list
@@ -238,7 +232,10 @@ const AboutDetail: React.FC = () => {
 
           <div className="grid-3" style={{ gap: '20px', marginBottom: '10px' }}>
             {trustees.map((member, idx) => (
-              <div key={idx} className="card" style={{ padding: '24px', background: 'var(--color-white)', borderLeft: '4px solid var(--color-green)', boxShadow: 'var(--shadow-sm)' }}>
+              <div key={idx} className="card" style={{ padding: '24px', background: 'var(--color-white)', borderLeft: '4px solid var(--color-green)', boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <div style={{ width: '75px', height: '75px', borderRadius: '50%', background: 'rgba(140, 198, 62, 0.08)', color: 'var(--color-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem', fontWeight: 800, marginBottom: '15px' }}>
+                  {member.name.replace("Mr. ", "").charAt(0)}
+                </div>
                 <h5 style={{ fontWeight: 800, color: 'var(--color-primary)', marginBottom: '4px', fontSize: '1rem' }}>{member.name}</h5>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-green)', fontWeight: 800, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{member.role}</div>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', margin: 0, lineHeight: '1.5' }}>{member.bio}</p>
@@ -349,18 +346,35 @@ const AboutDetail: React.FC = () => {
             ) : (
               <div className="grid-3" style={{ gap: '20px' }}>
                 {filteredMembers.map((member, idx) => (
-                  <div key={idx} className="card" style={{ padding: '20px', background: '#ffffff', border: '1px solid #e1e4e8', borderRadius: '8px', position: 'relative' }}>
-                    <h5 style={{ fontWeight: 800, color: 'var(--color-primary)', margin: '0 0 4px 0', fontSize: '0.95rem' }}>{member.name}</h5>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase' }}>
-                      {getRoleLabel(member.role)}
+                  <div key={idx} className="card" style={{ padding: '20px', background: '#ffffff', border: '1px solid #e1e4e8', borderRadius: '8px', position: 'relative', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    {/* Member Profile Image */}
+                    <div style={{ flexShrink: 0 }}>
+                      {member.profileImageUrl ? (
+                        <img 
+                          src={member.profileImageUrl} 
+                          alt={member.name} 
+                          style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--color-green)' }} 
+                        />
+                      ) : (
+                        <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(10, 60, 140, 0.08)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 800 }}>
+                          {member.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <MapPin size={12} style={{ color: 'var(--color-green)' }} />
-                      <span>{member.district}, {member.state}</span>
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
-                      <div>📧 {member.email}</div>
-                      <div>📞 {member.phone}</div>
+                    {/* Member Details */}
+                    <div>
+                      <h5 style={{ fontWeight: 800, color: 'var(--color-primary)', margin: '0 0 4px 0', fontSize: '0.95rem' }}>{member.name}</h5>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 700, marginBottom: '6px', textTransform: 'uppercase' }}>
+                        {getRoleLabel(member.role)}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <MapPin size={10} style={{ color: 'var(--color-green)' }} />
+                        <span>{member.district}, {member.state}</span>
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>
+                        <div>📧 {member.email}</div>
+                        <div>📞 {member.phone}</div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -465,87 +479,95 @@ const AboutDetail: React.FC = () => {
       {/* Main Content & Form Grid */}
       <section className="section-padding" style={{ background: 'var(--color-light-gray)' }}>
         <div className="container">
-          <div className="grid-3" style={{ gap: '40px', alignItems: 'flex-start' }}>
-            {/* Detailed Content (2 columns width) */}
-            <div style={{ gridColumn: 'span 2' }}>
+          {pageKey === 'team' ? (
+            // Full width layout for Team page, removing the Inquire sidebar completely
+            <div>
               {getSubpageContent()}
             </div>
+          ) : (
+            // Split layout with Inquire sidebar for other subpages
+            <div className="grid-3" style={{ gap: '40px', alignItems: 'flex-start' }}>
+              {/* Detailed Content (2 columns width) */}
+              <div style={{ gridColumn: 'span 2' }}>
+                {getSubpageContent()}
+              </div>
 
-            {/* Side form */}
-            <div>
-              <div className="card" style={{ padding: '30px', position: 'sticky', top: '100px' }}>
-                <h4 style={{ color: 'var(--color-primary)', fontSize: '1.25rem', fontWeight: 800, marginBottom: '5px' }}>
-                  {pageKey === 'partners' ? 'Sponsor / Partner' : 'Inquire'}
-                </h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '20px' }}>
-                  {pageKey === 'partners' ? 'Submit corporate CSR details to partner with us.' : 'Submit a request to verify legal certificates or advisory sheets.'}
-                </p>
+              {/* Side form */}
+              <div>
+                <div className="card" style={{ padding: '30px', position: 'sticky', top: '100px' }}>
+                  <h4 style={{ color: 'var(--color-primary)', fontSize: '1.25rem', fontWeight: 800, marginBottom: '5px' }}>
+                    {pageKey === 'partners' ? 'Sponsor / Partner' : 'Inquire'}
+                  </h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '20px' }}>
+                    {pageKey === 'partners' ? 'Submit corporate CSR details to partner with us.' : 'Submit a request to verify legal certificates or advisory sheets.'}
+                  </p>
 
-                {formSubmitted ? (
-                  <div style={{ textAlign: 'center', padding: '30px 10px', background: 'rgba(140, 198, 62, 0.08)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-green)' }}>
-                    <CheckCircle size={48} color="var(--color-green)" style={{ margin: '0 auto 15px auto' }} />
-                    <h5 style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '5px' }}>Inquiry Staged!</h5>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>We will review your inquiry and contact you shortly.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Full Name</label>
-                      <input 
-                        type="text" 
-                        name="name" 
-                        required 
-                        value={formData.name} 
-                        onChange={handleInputChange} 
-                        style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
-                        placeholder="Enter full name" 
-                      />
+                  {formSubmitted ? (
+                    <div style={{ textAlign: 'center', padding: '30px 10px', background: 'rgba(140, 198, 62, 0.08)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-green)' }}>
+                      <CheckCircle size={48} color="var(--color-green)" style={{ margin: '0 auto 15px auto' }} />
+                      <h5 style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '5px' }}>Inquiry Staged!</h5>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>We will review your inquiry and contact you shortly.</p>
                     </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Contact Phone</label>
-                      <input 
-                        type="tel" 
-                        name="phone" 
-                        required 
-                        value={formData.phone} 
-                        onChange={handleInputChange} 
-                        style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
-                        placeholder="10-digit mobile number" 
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Email Address</label>
-                      <input 
-                        type="email" 
-                        name="email" 
-                        required 
-                        value={formData.email} 
-                        onChange={handleInputChange} 
-                        style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
-                        placeholder="Enter email address" 
-                      />
-                    </div>
-                    {getFormInputs()}
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Details / Inquiry Message</label>
-                      <textarea 
-                        name="message" 
-                        rows={4} 
-                        required 
-                        value={formData.message} 
-                        onChange={handleInputChange} 
-                        style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem', resize: 'vertical' }} 
-                        placeholder="Detail your request..." 
-                      />
-                    </div>
-                    <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>
-                      <Send size={16} /> Submit Request
-                    </button>
-                  </form>
-                )}
+                  ) : (
+                    <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Full Name</label>
+                        <input 
+                          type="text" 
+                          name="name" 
+                          required 
+                          value={formData.name} 
+                          onChange={handleInputChange} 
+                          style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
+                          placeholder="Enter full name" 
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Contact Phone</label>
+                        <input 
+                          type="tel" 
+                          name="phone" 
+                          required 
+                          value={formData.phone} 
+                          onChange={handleInputChange} 
+                          style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
+                          placeholder="10-digit mobile number" 
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Email Address</label>
+                        <input 
+                          type="email" 
+                          name="email" 
+                          required 
+                          value={formData.email} 
+                          onChange={handleInputChange} 
+                          style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
+                          placeholder="Enter email address" 
+                        />
+                      </div>
+                      {getFormInputs()}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Details / Inquiry Message</label>
+                        <textarea 
+                          name="message" 
+                          rows={4} 
+                          required 
+                          value={formData.message} 
+                          onChange={handleInputChange} 
+                          style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem', resize: 'vertical' }} 
+                          placeholder="Detail your request..." 
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>
+                        <Send size={16} /> Submit Request
+                      </button>
+                    </form>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
     </div>

@@ -21,7 +21,7 @@ interface AuthContextProps {
   registerWithEmail: (email: string, pass: string, name: string, role: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
   mockLogin: (email: string, role: string, name: string) => void;
-  updateUserProfileDetails: (email: string, phone: string, address: string) => Promise<void>;
+  updateUserProfileDetails: (email: string, phone: string, address: string, profileImageUrl?: string) => Promise<void>;
   approveUserStatus: (uid: string, status: 'active' | 'rejected') => void;
 }
 
@@ -294,13 +294,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserProfile(existingUser);
   };
 
-  const updateUserProfileDetails = async (email: string, phone: string, address: string) => {
+  const updateUserProfileDetails = async (email: string, phone: string, address: string, profileImageUrl?: string) => {
     if (userProfile) {
       const updatedProfile: UserDoc = {
         ...userProfile,
         email,
         phone,
         address,
+        profileImageUrl: profileImageUrl !== undefined ? profileImageUrl : userProfile.profileImageUrl,
         updatedAt: new Date().toISOString()
       };
       setUserProfile(updatedProfile);
