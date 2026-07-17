@@ -101,7 +101,7 @@ const Header: React.FC = () => {
           <Link to="/" className="logo-section" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <img 
               src="/assets/logo.jpg" 
-              alt="Life Changing & Educational Charitable Trust Logo" 
+              alt="Life Changing Educational & Charitable Trust Logo" 
               style={{ 
                 height: '60px', 
                 width: '60px', 
@@ -113,8 +113,8 @@ const Header: React.FC = () => {
               }} 
             />
             <div>
-              <div className="logo-main">Life Changing & Educational</div>
-              <div className="logo-sub">Charitable Trust</div>
+              <div className="logo-main">Life Changing</div>
+              <div className="logo-sub">Educational & Charitable Trust</div>
             </div>
           </Link>
 

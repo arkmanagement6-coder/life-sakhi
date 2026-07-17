@@ -120,7 +120,7 @@ const Home: React.FC = () => {
   const faqs = [
     { q: "What is the Life Sakhi Initiative?", a: "Life Sakhi is a dedicated women's health and empowerment initiative under our Trust. It focuses on making premium-quality sanitary pads accessible to rural women at subsidized costs, while establishing local women as distributors to generate micro-employment." },
     { q: "How can I apply to become a District or State Coordinator?", a: "You can apply directly via the 'Become Partner' forms on our Contact page or register. Our management board reviews applications based on location, experience, and dedication. Once approved, training and startup kits are provided." },
-    { q: "Are donations to the Trust tax-exempt?", a: "Yes, all donations made to the Life Changing & Educational Charitable Trust are eligible for tax deductions under Section 80G of the Income Tax Act. Receipts and certificates are issued automatically." },
+    { q: "Are donations to the Trust tax-exempt?", a: "Yes, all donations made to the Life Changing Educational & Charitable Trust are eligible for tax deductions under Section 80G of the Income Tax Act. Receipts and certificates are issued automatically." },
     { q: "How does the Women Employment Program work?", a: "We train rural women (Distributors/Sakhis) in hygiene advocacy and product distribution. They sell biodegradable sanitary pads in their villages, keeping a healthy commission margin, thereby securing an independent livelihood." }
   ];
 
@@ -160,9 +160,9 @@ const Home: React.FC = () => {
             </div>
             <div>
               <span className="section-subtitle">Who We Are</span>
-              <h2 className="section-title">Life Changing & Educational Charitable Trust</h2>
+              <h2 className="section-title">Life Changing Educational & Charitable Trust</h2>
               <p className="about-text">
-                Life Changing & Educational Charitable Trust is a registered, CSR-certified non-profit organization working for quality child education, rural healthcare access, women employment, and social welfare. Over the past four years, we have touched thousands of lives through localized interventions and community campaigns.
+                Life Changing Educational & Charitable Trust is a registered, CSR-certified non-profit organization working for quality child education, rural healthcare access, women employment, and social welfare. Over the past four years, we have touched thousands of lives through localized interventions and community campaigns.
               </p>
               <p className="about-text" style={{ fontWeight: 500, color: 'var(--color-primary)' }}>
                 In 2026, we proudly launched the <strong>Life Sakhi</strong> brand, aiming to ensure menstrual hygiene awareness and premium, affordable sanitary pads reach every woman across rural and semi-urban India.

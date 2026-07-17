@@ -37,7 +37,7 @@ const About: React.FC = () => {
               <span className="section-subtitle">Our Journey</span>
               <h2 className="section-title">Serving Communities Since 2022</h2>
               <p className="about-text">
-                Life Changing & Educational Charitable Trust was founded by a cohort of health experts and educators who observed substantial gaps in school retention and basic preventive health services in rural pockets.
+                Life Changing Educational & Charitable Trust was founded by a cohort of health experts and educators who observed substantial gaps in school retention and basic preventive health services in rural pockets.
               </p>
               <p className="about-text">
                 By implementing community smart labs and local healthcare hubs under the flag of the **Life Sakhi** campaign, we have successfully created a self-sustaining network of women health distributors.
@@ -76,7 +76,7 @@ const About: React.FC = () => {
                 "During my clinical practice in villages, I saw young girls drop out of school because they couldn't afford sanitary napkins, or suffered severe reproductive infections due to unhygienic practices. We registered this trust to move beyond awareness: to establish local supply chains run by women themselves. True empowerment happens when health and income grow together."
               </p>
               <h4 style={{ color: 'var(--color-primary)', fontSize: '1.2rem', marginBottom: '4px' }}>Dr. Ritu Sharma</h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>Founder Trustee, Life Changing & Educational Charitable Trust</p>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>Founder Trustee, Life Changing Educational & Charitable Trust</p>
             </div>
           </div>
         </div>

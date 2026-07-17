@@ -250,17 +250,20 @@ img {
 }
 
 .logo-main {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--color-primary);
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .logo-sub {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--color-green);
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .menu-items {

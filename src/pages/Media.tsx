@@ -28,9 +28,9 @@ const Media: React.FC = () => {
   ];
 
   const news = [
-    { title: "Life Changing & Educational Charitable Trust launches Life Sakhi brand for Rural Women Health", source: "Dainik Bhaskar", date: "April 10, 2026" },
+    { title: "Life Changing Educational & Charitable Trust launches Life Sakhi brand for Rural Women Health", source: "Dainik Bhaskar", date: "April 10, 2026" },
     { title: "NGO sets up computer labs in 10 block schools in Haryana", source: "The Tribune", date: "March 18, 2026" },
-    { title: "80G and CSR certification awarded to Life Changing & Educational Charitable Trust", source: "MCA Gazette", date: "January 05, 2026" }
+    { title: "80G and CSR certification awarded to Life Changing Educational & Charitable Trust", source: "MCA Gazette", date: "January 05, 2026" }
   ];
 
   const testimonials = [
@@ -124,7 +124,7 @@ const Media: React.FC = () => {
               <span className="section-subtitle">Press Highlights</span>
               <h2 className="section-title">NGO in the News</h2>
               <p className="about-text">
-                Read what major publications and newspapers write about the campaigns organized by the Life Changing & Educational Charitable Trust.
+                Read what major publications and newspapers write about the campaigns organized by the Life Changing Educational & Charitable Trust.
               </p>
               
               <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
