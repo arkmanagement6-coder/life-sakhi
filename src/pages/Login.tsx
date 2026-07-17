@@ -62,6 +62,7 @@ const Login: React.FC = () => {
   };
 
   const roles = [
+    { code: 'admin', name: 'Admin / Trust Management' },
     { code: 'user', name: 'Normal User' },
     { code: 'volunteer', name: 'Volunteer' },
     { code: 'donor', name: 'Donor' },
@@ -84,6 +85,14 @@ const Login: React.FC = () => {
         <p style={{ textAlign: 'center', color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '25px' }}>
           Access your coordinator dashboard, order records, or tax receipts.
         </p>
+
+        {/* Admin Credentials Info Box */}
+        <div style={{ background: 'rgba(10, 60, 140, 0.05)', border: '1px solid rgba(10, 60, 140, 0.15)', borderRadius: '6px', padding: '12px 15px', marginBottom: '20px', fontSize: '0.85rem', color: 'var(--color-primary)' }}>
+          <h5 style={{ margin: '0 0 5px 0', fontWeight: 'bold', color: 'var(--color-primary)' }}>🔑 Test Admin Login:</h5>
+          <div><strong>Email:</strong> admin@lifechangingtrust.org</div>
+          <div><strong>Password:</strong> admin123</div>
+          <div style={{ fontSize: '0.75rem', marginTop: '4px', opacity: 0.8 }}>*Use these credentials or the dropdown helper to log in as Admin.</div>
+        </div>
 
         {/* Toggle Login Method */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', background: 'var(--color-light-gray)', padding: '4px', borderRadius: 'var(--border-radius-sm)' }}>

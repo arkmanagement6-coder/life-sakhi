@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { userProfile, loading, updateUserProfileDetails, logout } = useAuth();
+  const { userProfile, loading, updateUserProfileDetails, approveUserStatus, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -20,6 +20,20 @@ const Dashboard: React.FC = () => {
   const [profilePhone, setProfilePhone] = useState(userProfile?.phone || '');
   const [profileAddress, setProfileAddress] = useState(userProfile?.address || 'Not Configured');
   const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
+
+  // Admin user list state
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+
+  const loadAllUsers = () => {
+    const raw = localStorage.getItem('life_sakhi_all_users');
+    if (raw) {
+      setAllUsers(JSON.parse(raw));
+    }
+  };
+
+  React.useEffect(() => {
+    loadAllUsers();
+  }, []);
 
   React.useEffect(() => {
     if (userProfile) {
@@ -35,6 +49,7 @@ const Dashboard: React.FC = () => {
       await updateUserProfileDetails(profileEmail, profilePhone, profileAddress);
       setProfileSaveSuccess(true);
       setIsEditingProfile(false);
+      loadAllUsers(); // Reload lists
       setTimeout(() => setProfileSaveSuccess(false), 3000);
     } catch (err) {
       alert("Failed to save profile changes.");
@@ -59,23 +74,10 @@ const Dashboard: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const role = userProfile.role || 'user';
-  const name = userProfile.displayName || 'Trust Member';
-  const email = userProfile.email || '';
-
-  const handleInputChange = (setter: any) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setter((prev: any) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSubmitted(true);
-    setTimeout(() => setFormSubmitted(false), 3000);
-  };
-
   const getRoleDisplayName = () => {
-    switch (role) {
+    switch (userProfile.role) {
+      case 'admin':
+        return 'System Admin';
       case 'women_distributor':
         return 'Life Sakhi Distributor';
       case 'block_coordinator':
@@ -100,6 +102,50 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  if (userProfile.status === 'pending') {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--color-light-gray)', padding: '20px', fontFamily: 'Outfit, sans-serif' }}>
+        <div className="card" style={{ background: 'white', borderRadius: '8px', border: '1px solid #eee', width: '100%', maxWidth: '550px', padding: '40px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255, 193, 7, 0.1)', color: '#ffc107', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          </div>
+          <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', fontWeight: 800, marginBottom: '10px' }}>Approval Pending</h3>
+          <p style={{ color: 'var(--color-muted)', fontSize: '0.95rem', lineHeight: '1.6', margin: '0 0 20px 0' }}>
+            Thank you for registering as a <strong>{getRoleDisplayName()}</strong>.
+          </p>
+          <p style={{ color: 'var(--color-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '25px' }}>
+            Your account is currently pending administrator verification. Once the Trust management reviews and approves your credentials, you will be granted access to this portal.
+          </p>
+          <div style={{ background: '#f4f6f9', padding: '15px', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '30px', borderLeft: '4px solid #ffc107', textAlign: 'left' }}>
+            <strong style={{ display: 'block', marginBottom: '5px', color: 'var(--color-primary)' }}>Application Details:</strong>
+            <div>• Name: {userProfile.displayName || 'Trust Member'}</div>
+            <div>• Role: {getRoleDisplayName()}</div>
+            <div>• Email: {userProfile.email}</div>
+          </div>
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+            <Link to="/" className="btn btn-primary" style={{ padding: '8px 24px' }}>Back to Home</Link>
+            <button onClick={logout} className="btn btn-outline" style={{ padding: '8px 24px' }}>Logout</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const role = userProfile.role || 'user';
+  const name = userProfile.displayName || 'Trust Member';
+  const email = userProfile.email || '';
+
+  const handleInputChange = (setter: any) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setter((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormSubmitted(true);
+    setTimeout(() => setFormSubmitted(false), 3000);
+  };
+
   // Define sidebar menu options based on role
   const getSidebarMenuItems = () => {
     const common = [
@@ -107,6 +153,12 @@ const Dashboard: React.FC = () => {
     ];
 
     switch (role) {
+      case 'admin':
+        return [
+          ...common,
+          { id: 'approve_registrations', label: 'Approve Registrations', icon: <CheckCircle2 size={18} /> },
+          { id: 'all_coordinators', label: 'Team Directory', icon: <Users size={18} /> }
+        ];
       case 'women_distributor':
         return [
           ...common,
@@ -156,6 +208,31 @@ const Dashboard: React.FC = () => {
   const renderOverview = () => {
     // Render role-specific stats cards
     const renderStatsGrid = () => {
+      if (role === 'admin') {
+        const pendingCount = allUsers.filter(u => u.status === 'pending').length;
+        const activeCount = allUsers.filter(u => u.status === 'active').length;
+        const totalCount = allUsers.length;
+        return (
+          <div className="grid-4" style={{ gap: '20px', marginBottom: '30px' }}>
+            <div className="stat-card" style={{ borderLeftColor: '#ffc107', background: 'white' }}>
+              <span style={{ color: 'var(--color-muted)', fontSize: '0.85rem', fontWeight: 600 }}>Pending Approvals</span>
+              <h3 style={{ color: '#ffc107', fontSize: '2rem', fontWeight: 800, margin: 0 }}>{pendingCount} Signups</h3>
+            </div>
+            <div className="stat-card card-green">
+              <span>Active Coordinators</span>
+              <h3>{activeCount} Active</h3>
+            </div>
+            <div className="stat-card card-blue">
+              <span>Total Database Size</span>
+              <h3>{totalCount} Users</h3>
+            </div>
+            <div className="stat-card card-green">
+              <span>Trust Impact Reach</span>
+              <h3>15+ Districts</h3>
+            </div>
+          </div>
+        );
+      }
       if (role === 'women_distributor') {
         return (
           <div className="grid-4" style={{ gap: '20px', marginBottom: '30px' }}>
@@ -692,6 +769,154 @@ const Dashboard: React.FC = () => {
         {/* Dashboard Body container */}
         <main className="dashboard-body">
           {activeTab === 'overview' && renderOverview()}
+
+          {/* Admin sub-views */}
+          {activeTab === 'approve_registrations' && (
+            <div className="card" style={{ padding: '30px' }}>
+              <h4 style={{ color: 'var(--color-primary)', marginBottom: '20px', fontWeight: 800 }}>Approve Registrations (Approval Desk)</h4>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '25px' }}>
+                Review and manage newly registered team members, distributors, and coordinators. These accounts cannot sign in or access their desks until you approve their status.
+              </p>
+              
+              {allUsers.filter(u => u.status === 'pending').length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', background: '#f8f9fa', borderRadius: '8px', color: 'var(--color-muted)' }}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '15px', color: 'var(--color-green)' }}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <h5 style={{ fontWeight: 700, margin: '0 0 5px 0', color: 'var(--color-primary)' }}>All Caught Up!</h5>
+                  <p style={{ margin: 0, fontSize: '0.85rem' }}>There are no pending coordinator or distributor registrations awaiting review.</p>
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e1e4e8', textAlign: 'left' }}>
+                        <th style={{ padding: '12px' }}>Full Name</th>
+                        <th style={{ padding: '12px' }}>Role / Designation</th>
+                        <th style={{ padding: '12px' }}>Email Address</th>
+                        <th style={{ padding: '12px' }}>Phone Number</th>
+                        <th style={{ padding: '12px' }}>Registered On</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allUsers.filter(u => u.status === 'pending').map((u) => (
+                        <tr key={u.uid} style={{ borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '12px', fontWeight: 600 }}>{u.displayName}</td>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{ background: 'rgba(10, 60, 140, 0.08)', color: 'var(--color-primary)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
+                              {u.role === 'women_distributor' ? 'Life Sakhi Distributor' :
+                               u.role === 'block_coordinator' ? 'Block Coordinator' :
+                               u.role === 'district_coordinator' ? 'District Coordinator' :
+                               u.role === 'state_coordinator' ? 'State Coordinator' :
+                               u.role === 'doctor' ? 'Clinical Doctor' :
+                               u.role === 'volunteer' ? 'Active Volunteer' : u.role}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px' }}>{u.email}</td>
+                          <td style={{ padding: '12px' }}>{u.phone}</td>
+                          <td style={{ padding: '12px' }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</td>
+                          <td style={{ padding: '12px', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                              <button 
+                                onClick={() => { approveUserStatus(u.uid, 'active'); loadAllUsers(); }} 
+                                className="btn btn-primary" 
+                                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                              >
+                                Approve
+                              </button>
+                              <button 
+                                onClick={() => { approveUserStatus(u.uid, 'rejected'); loadAllUsers(); }} 
+                                className="btn btn-outline" 
+                                style={{ padding: '4px 10px', fontSize: '0.75rem', borderColor: '#ff4d4d', color: '#ff4d4d' }}
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'all_coordinators' && (
+            <div className="card" style={{ padding: '30px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h4 style={{ color: 'var(--color-primary)', margin: 0, fontWeight: 800 }}>Team Directory</h4>
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+                  Total Registered Team: <strong>{allUsers.length} members</strong>
+                </div>
+              </div>
+              
+              <div style={{ overflowX: 'auto' }}>
+                <table className="table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                  <thead>
+                    <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e1e4e8', textAlign: 'left' }}>
+                      <th style={{ padding: '12px' }}>Name</th>
+                      <th style={{ padding: '12px' }}>Designation</th>
+                      <th style={{ padding: '12px' }}>Email Address</th>
+                      <th style={{ padding: '12px' }}>Phone</th>
+                      <th style={{ padding: '12px' }}>Status</th>
+                      <th style={{ padding: '12px', textAlign: 'center' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allUsers.map((u) => (
+                      <tr key={u.uid} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '12px', fontWeight: 600 }}>{u.displayName}</td>
+                        <td style={{ padding: '12px' }}>
+                          <span style={{ textTransform: 'capitalize' }}>
+                            {u.role === 'admin' ? 'System Admin' :
+                             u.role === 'women_distributor' ? 'Life Sakhi Distributor' :
+                             u.role === 'block_coordinator' ? 'Block Coordinator' :
+                             u.role === 'district_coordinator' ? 'District Coordinator' :
+                             u.role === 'state_coordinator' ? 'State Coordinator' :
+                             u.role === 'doctor' ? 'Clinical Doctor' :
+                             u.role === 'volunteer' ? 'Active Volunteer' : u.role}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px' }}>{u.email}</td>
+                        <td style={{ padding: '12px' }}>{u.phone}</td>
+                        <td style={{ padding: '12px' }}>
+                          <span style={{ 
+                            background: u.status === 'active' ? 'rgba(140, 198, 62, 0.1)' : u.status === 'pending' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(244, 67, 54, 0.1)', 
+                            color: u.status === 'active' ? 'var(--color-green)' : u.status === 'pending' ? '#ffc107' : '#f44336', 
+                            padding: '2px 8px', 
+                            borderRadius: '4px', 
+                            fontSize: '0.75rem', 
+                            fontWeight: 700 
+                          }}>
+                            {u.status === 'active' ? 'Approved Active' : u.status === 'pending' ? 'Approval Pending' : 'Suspended / Rejected'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          {u.role !== 'admin' && (
+                            <button 
+                              onClick={() => { 
+                                approveUserStatus(u.uid, u.status === 'active' ? 'rejected' : 'active'); 
+                                loadAllUsers(); 
+                              }} 
+                              className="btn btn-outline" 
+                              style={{ 
+                                padding: '4px 8px', 
+                                fontSize: '0.7rem', 
+                                color: u.status === 'active' ? '#ff4d4d' : 'var(--color-green)', 
+                                borderColor: u.status === 'active' ? '#ff4d4d' : 'var(--color-green)' 
+                              }}
+                            >
+                              {u.status === 'active' ? 'Revoke' : 'Authorize'}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* 1. Distributor views */}
           {activeTab === 'place_order' && (

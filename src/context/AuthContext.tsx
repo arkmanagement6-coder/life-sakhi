@@ -21,6 +21,7 @@ interface AuthContextProps {
   logout: () => Promise<void>;
   mockLogin: (email: string, role: string, name: string) => void;
   updateUserProfileDetails: (email: string, phone: string, address: string) => Promise<void>;
+  approveUserStatus: (uid: string, status: 'active' | 'rejected') => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -30,17 +31,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserDoc | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Seed initial mock users list if not present
+  useEffect(() => {
+    const existingUsers = localStorage.getItem('life_sakhi_all_users');
+    if (!existingUsers) {
+      const initialUsers = [
+        {
+          uid: "mock-uid-admin",
+          email: "admin@lifechangingtrust.org",
+          displayName: "Admin Administrator",
+          phone: "+91 98765 43210",
+          role: "admin",
+          status: "active",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          uid: "mock-uid-ravi",
+          email: "ravi@example.com",
+          displayName: "Ravi Kumar",
+          phone: "+91 99999 88888",
+          role: "block_coordinator",
+          status: "pending",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          uid: "mock-uid-savitri",
+          email: "savitri@example.com",
+          displayName: "Savitri Devi",
+          phone: "+91 98765 43210",
+          role: "women_distributor",
+          status: "active",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          uid: "mock-uid-kiran",
+          email: "kiran@example.com",
+          displayName: "Kiran Sharma",
+          phone: "+91 87654 32109",
+          role: "women_distributor",
+          status: "pending",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(initialUsers));
+    }
+  }, []);
+
   // Load profile from localStorage if using mock, or setup firebase listener
   useEffect(() => {
     // Check if there is a mock session
     const mockSession = localStorage.getItem('life_sakhi_mock_user');
     if (mockSession) {
       const data = JSON.parse(mockSession);
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      const latestProfile = allUsers.find((u: any) => u.uid === data.uid) || data;
+
+      localStorage.setItem('life_sakhi_mock_user', JSON.stringify(latestProfile));
+
       setUser({
-        uid: data.uid,
-        email: data.email,
-        displayName: data.displayName,
-        phoneNumber: data.phone,
+        uid: latestProfile.uid,
+        email: latestProfile.email,
+        displayName: latestProfile.displayName,
+        phoneNumber: latestProfile.phone,
         emailVerified: true,
         isAnonymous: false,
         metadata: {},
@@ -53,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         reload: async () => {},
         toJSON: () => ({})
       } as unknown as User);
-      setUserProfile(data);
+      setUserProfile(latestProfile);
       setLoading(false);
       return;
     }
@@ -120,10 +177,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         displayName: name,
         phone,
         role,
-        status: 'active',
+        status: (role === 'user' || role === 'donor') ? 'active' : 'pending',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
+      
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      allUsers.push(mockUser);
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
+      
       localStorage.setItem('life_sakhi_mock_user', JSON.stringify(mockUser));
       setUser({
         uid: mockUser.uid,
@@ -148,25 +211,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const mockLogin = (email: string, role: string, name: string) => {
-    const mockUser: UserDoc = {
-      uid: "mock-uid-12345",
-      email,
-      displayName: name || email.split('@')[0].toUpperCase(),
-      phone: "+91 99999 88888",
-      role: role as any,
-      status: 'active',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    localStorage.setItem('life_sakhi_mock_user', JSON.stringify(mockUser));
+    const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+    const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+    let existingUser = allUsers.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+
+    if (!existingUser) {
+      existingUser = {
+        uid: "mock-uid-" + Math.random().toString(36).substring(7),
+        email,
+        displayName: name || email.split('@')[0].toUpperCase(),
+        phone: "+91 99999 88888",
+        role: role as any,
+        status: (role === 'user' || role === 'donor' || role === 'admin') ? 'active' : 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      allUsers.push(existingUser);
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
+    } else {
+      existingUser.role = role as any;
+      if (name) existingUser.displayName = name;
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
+    }
+
+    localStorage.setItem('life_sakhi_mock_user', JSON.stringify(existingUser));
     setUser({
-      uid: mockUser.uid,
-      email: mockUser.email,
-      displayName: mockUser.displayName,
-      phoneNumber: mockUser.phone,
+      uid: existingUser.uid,
+      email: existingUser.email,
+      displayName: existingUser.displayName,
+      phoneNumber: existingUser.phone,
       emailVerified: true
     } as unknown as User);
-    setUserProfile(mockUser);
+    setUserProfile(existingUser);
   };
 
   const updateUserProfileDetails = async (email: string, phone: string, address: string) => {
@@ -180,6 +256,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       setUserProfile(updatedProfile);
       localStorage.setItem('life_sakhi_mock_user', JSON.stringify(updatedProfile));
+      
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      const updatedUsers = allUsers.map((u: any) => u.uid === userProfile.uid ? updatedProfile : u);
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(updatedUsers));
+    }
+  };
+
+  const approveUserStatus = (uid: string, status: 'active' | 'rejected') => {
+    const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+    const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+    const updatedUsers = allUsers.map((u: any) => {
+      if (u.uid === uid) {
+        return { ...u, status };
+      }
+      return u;
+    });
+    localStorage.setItem('life_sakhi_all_users', JSON.stringify(updatedUsers));
+
+    const currentMock = localStorage.getItem('life_sakhi_mock_user');
+    if (currentMock) {
+      const current = JSON.parse(currentMock);
+      if (current.uid === uid) {
+        current.status = status;
+        localStorage.setItem('life_sakhi_mock_user', JSON.stringify(current));
+        setUserProfile(current);
+      }
     }
   };
 
@@ -193,7 +296,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       registerWithEmail,
       logout,
       mockLogin,
-      updateUserProfileDetails
+      updateUserProfileDetails,
+      approveUserStatus
     }}>
       {children}
     </AuthContext.Provider>
