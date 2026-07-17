@@ -132,85 +132,74 @@ const Header: React.FC = () => {
             <li>
               <NavLink to="/" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('home')}</NavLink>
             </li>
-
-            {/* Health Programs Submenu */}
             <li className="dropdown-container">
               <NavLink to="/health" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                 {t('healthPrograms')}
               </NavLink>
               <ul className="dropdown-menu">
-                <li className="dropdown-item"><Link to="/health#life-sakhi">Life Sakhi Program</Link></li>
-                <li className="dropdown-item"><Link to="/health#menstrual">Menstrual Hygiene</Link></li>
-                <li className="dropdown-item"><Link to="/health#camps">Medical Camps</Link></li>
-                <li className="dropdown-item"><Link to="/health#nutrition">Nutrition Program</Link></li>
-                <li className="dropdown-item"><Link to="/health#awareness">Health Awareness</Link></li>
-                <li className="dropdown-item"><Link to="/health#distribution">Pad Distribution</Link></li>
-                <li className="dropdown-item"><Link to="/health#mental-health">Mental Health</Link></li>
+                <li className="dropdown-item"><Link to="/health/life-sakhi">Life Sakhi Program</Link></li>
+                <li className="dropdown-item"><Link to="/health/menstrual-hygiene">Menstrual Hygiene</Link></li>
+                <li className="dropdown-item"><Link to="/health/medical-camps">Medical Camps</Link></li>
+                <li className="dropdown-item"><Link to="/health/nutrition-program">Nutrition Program</Link></li>
+                <li className="dropdown-item"><Link to="/health/health-awareness">Health Awareness</Link></li>
+                <li className="dropdown-item"><Link to="/health/pad-distribution">Pad Distribution</Link></li>
+                <li className="dropdown-item"><Link to="/health/mental-health">Mental Health</Link></li>
               </ul>
             </li>
-
-            {/* Education Submenu */}
             <li className="dropdown-container">
               <NavLink to="/education" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                 {t('educationPrograms')}
               </NavLink>
               <ul className="dropdown-menu">
-                <li className="dropdown-item"><Link to="/education#child">Child Education</Link></li>
-                <li className="dropdown-item"><Link to="/education#digital">Digital Education</Link></li>
-                <li className="dropdown-item"><Link to="/education#scholarship">Scholarships</Link></li>
-                <li className="dropdown-item"><Link to="/education#skills">Skill Development</Link></li>
-                <li className="dropdown-item"><Link to="/education#computer">Computer Training</Link></li>
-                <li className="dropdown-item"><Link to="/education#guidance">Career Guidance</Link></li>
+                <li className="dropdown-item"><Link to="/education/child-education">Child Education</Link></li>
+                <li className="dropdown-item"><Link to="/education/digital-learning">Digital Education</Link></li>
+                <li className="dropdown-item"><Link to="/education/scholarships">Scholarships</Link></li>
+                <li className="dropdown-item"><Link to="/education/skill-development">Skill Development</Link></li>
+                <li className="dropdown-item"><Link to="/education/computer-training">Computer Training</Link></li>
+                <li className="dropdown-item"><Link to="/education/career-guidance">Career Guidance</Link></li>
               </ul>
             </li>
-
-            {/* Employment Submenu */}
             <li className="dropdown-container">
               <NavLink to="/employment" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                 {t('employmentPrograms')}
               </NavLink>
               <ul className="dropdown-menu">
-                <li className="dropdown-item"><Link to="/employment#women">Women Employment</Link></li>
-                <li className="dropdown-item"><Link to="/employment#shg">Self Help Groups</Link></li>
-                <li className="dropdown-item"><Link to="/employment#training">Vocational Training</Link></li>
-                <li className="dropdown-item"><Link to="/employment#micro-business">Micro Business Support</Link></li>
-                <li className="dropdown-item"><Link to="/employment#distributors">Women Distributors</Link></li>
-                <li className="dropdown-item"><Link to="/employment#coordinator">District Coordinator Program</Link></li>
+                <li className="dropdown-item"><Link to="/employment/women-employment">Women Employment</Link></li>
+                <li className="dropdown-item"><Link to="/employment/self-help-groups">Self Help Groups</Link></li>
+                <li className="dropdown-item"><Link to="/employment/vocational-training">Vocational Training</Link></li>
+                <li className="dropdown-item"><Link to="/employment/micro-business">Micro Business Support</Link></li>
+                <li className="dropdown-item"><Link to="/employment/distributors">Women Distributors</Link></li>
+                <li className="dropdown-item"><Link to="/employment/coordinator-program">District Coordinator Program</Link></li>
               </ul>
             </li>
-
-            {/* Women Empowerment Submenu */}
             <li className="dropdown-container">
               <NavLink to="/women-empowerment" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                 {t('womenEmpowerment')}
               </NavLink>
               <ul className="dropdown-menu">
-                <li className="dropdown-item"><Link to="/women-empowerment#initiative">Life Sakhi Initiative</Link></li>
-                <li className="dropdown-item"><Link to="/women-empowerment#distributors">Women Distributors</Link></li>
-                <li className="dropdown-item"><Link to="/employment#shg">Self Help Groups (SHG)</Link></li>
-                <li className="dropdown-item"><Link to="/employment#training">Vocational Training</Link></li>
-                <li className="dropdown-item"><Link to="/women-empowerment#livelihood">Livelihood Opportunities</Link></li>
-                <li className="dropdown-item"><Link to="/health#menstrual">Hygiene Advocacy</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment/life-sakhi-campaign">Life Sakhi Initiative</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment/distributor-program">Women Distributors</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment/shg-support">Self Help Groups (SHG)</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment/vocational-skills">Vocational Training</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment/livelihood-capital">Livelihood Opportunities</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment/hygiene-awareness">Hygiene Advocacy</Link></li>
               </ul>
             </li>
-            
-            {/* About Submenu */}
             <li className="dropdown-container">
               <NavLink to="/about" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                 {t('about')}
               </NavLink>
               <ul className="dropdown-menu">
-                <li className="dropdown-item"><Link to="/about#founder">Founder Message</Link></li>
-                <li className="dropdown-item"><Link to="/about#vision">Vision & Mission</Link></li>
-                <li className="dropdown-item"><Link to="/about#legal">80G, 12A & CSR Status</Link></li>
-                <li className="dropdown-item"><Link to="/about#team">Our Team</Link></li>
-                <li className="dropdown-item"><Link to="/about#partners">Partners & Board</Link></li>
+                <li className="dropdown-item"><Link to="/about/founder">Founder Message</Link></li>
+                <li className="dropdown-item"><Link to="/about/vision-mission">Vision & Mission</Link></li>
+                <li className="dropdown-item"><Link to="/about/legal">80G, 12A & CSR Status</Link></li>
+                <li className="dropdown-item"><Link to="/about/team">Our Team</Link></li>
+                <li className="dropdown-item"><Link to="/about/partners">Partners & Board</Link></li>
                 <li className="dropdown-item" style={{ borderTop: '1px solid var(--color-gray-light)', paddingTop: '10px' }}><Link to="/projects">Our Projects</Link></li>
                 <li className="dropdown-item"><Link to="/campaigns">Our Campaigns</Link></li>
                 <li className="dropdown-item"><Link to="/media">Media & Publications</Link></li>
               </ul>
             </li>
-
             <li>
               <NavLink to="/contact" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('contact')}</NavLink>
             </li>
