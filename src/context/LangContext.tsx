@@ -12,9 +12,9 @@ const translations: Record<Language, Record<string, string>> = {
   en: {
     // Navigation
     home: "Home",
-    healthPrograms: "Health Programs",
-    educationPrograms: "Education Programs",
-    employmentPrograms: "Employment Programs",
+    healthPrograms: "Health",
+    educationPrograms: "Education",
+    employmentPrograms: "Employment",
     projects: "Projects",
     womenEmpowerment: "Women Empowerment",
     campaigns: "Campaigns",
@@ -60,9 +60,9 @@ const translations: Record<Language, Record<string, string>> = {
   hi: {
     // Navigation
     home: "गृह",
-    healthPrograms: "स्वास्थ्य कार्यक्रम",
-    educationPrograms: "शिक्षा कार्यक्रम",
-    employmentPrograms: "रोजगार कार्यक्रम",
+    healthPrograms: "स्वास्थ्य",
+    educationPrograms: "शिक्षा",
+    employmentPrograms: "रोजगार",
     projects: "परियोजनाएं",
     womenEmpowerment: "महिला सशक्तिकरण",
     campaigns: "अभियान",

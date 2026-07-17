@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import HeroSlider from './components/HeroSlider';
 import Home from './pages/Home';
 import Health from './pages/Health';
 import Education from './pages/Education';
@@ -38,9 +39,13 @@ const ScrollToTop = () => {
 };
 
 const AppContent: React.FC = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <ScrollToTop />
+      {isHomePage && <HeroSlider />}
       <Header />
       <main style={{ flex: 1 }}>
         <Routes>
