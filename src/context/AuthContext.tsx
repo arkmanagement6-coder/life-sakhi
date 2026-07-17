@@ -20,6 +20,7 @@ interface AuthContextProps {
   registerWithEmail: (email: string, pass: string, name: string, role: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
   mockLogin: (email: string, role: string, name: string) => void;
+  updateUserProfileDetails: (email: string, phone: string, address: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -168,6 +169,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserProfile(mockUser);
   };
 
+  const updateUserProfileDetails = async (email: string, phone: string, address: string) => {
+    if (userProfile) {
+      const updatedProfile: UserDoc = {
+        ...userProfile,
+        email,
+        phone,
+        address,
+        updatedAt: new Date().toISOString()
+      };
+      setUserProfile(updatedProfile);
+      localStorage.setItem('life_sakhi_mock_user', JSON.stringify(updatedProfile));
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -177,7 +192,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loginWithEmail,
       registerWithEmail,
       logout,
-      mockLogin
+      mockLogin,
+      updateUserProfileDetails
     }}>
       {children}
     </AuthContext.Provider>

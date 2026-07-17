@@ -9,10 +9,37 @@ import {
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { userProfile, loading, logout } = useAuth();
+  const { userProfile, loading, updateUserProfileDetails, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  // Profile editing state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileEmail, setProfileEmail] = useState(userProfile?.email || '');
+  const [profilePhone, setProfilePhone] = useState(userProfile?.phone || '');
+  const [profileAddress, setProfileAddress] = useState(userProfile?.address || 'Not Configured');
+  const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
+
+  React.useEffect(() => {
+    if (userProfile) {
+      setProfileEmail(userProfile.email || '');
+      setProfilePhone(userProfile.phone || '');
+      setProfileAddress(userProfile.address || 'Not Configured');
+    }
+  }, [userProfile]);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateUserProfileDetails(profileEmail, profilePhone, profileAddress);
+      setProfileSaveSuccess(true);
+      setIsEditingProfile(false);
+      setTimeout(() => setProfileSaveSuccess(false), 3000);
+    } catch (err) {
+      alert("Failed to save profile changes.");
+    }
+  };
 
   // Common forms state
   const [sakhiOrder, setSakhiOrder] = useState({ quantity: '100', block: 'Rohtak', notes: '' });
@@ -35,7 +62,6 @@ const Dashboard: React.FC = () => {
   const role = userProfile.role || 'user';
   const name = userProfile.displayName || 'Trust Member';
   const email = userProfile.email || '';
-  const phone = userProfile.phone || '';
 
   const handleInputChange = (setter: any) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -270,28 +296,72 @@ const Dashboard: React.FC = () => {
         <div className="grid-2" style={{ gap: '30px', alignItems: 'flex-start' }}>
           <div className="card" style={{ padding: '30px' }}>
             <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 800 }}>Account Profile</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Full Name:</span>
-                <strong>{name}</strong>
+            
+            {profileSaveSuccess && (
+              <div style={{ marginBottom: '15px', padding: '10px', background: 'rgba(140, 198, 62, 0.1)', color: 'var(--color-green)', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, textAlign: 'center' }}>
+                Profile Updated Successfully!
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Registered Role:</span>
-                <span style={{ color: 'var(--color-green)', fontWeight: 'bold' }}>{getRoleDisplayName()}</span>
+            )}
+
+            {!isEditingProfile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Full Name:</span>
+                  <strong>{name}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Registered Role:</span>
+                  <span style={{ color: 'var(--color-green)', fontWeight: 'bold' }}>{getRoleDisplayName()}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Email Address:</span>
+                  <strong>{userProfile?.email}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Phone Number:</span>
+                  <strong>{userProfile?.phone || 'Not Configured'}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Address:</span>
+                  <strong style={{ maxWidth: '180px', textAlign: 'right', wordBreak: 'break-word' }}>{userProfile?.address || 'Not Configured'}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Portal Status:</span>
+                  <span style={{ background: 'rgba(140, 198, 62, 0.1)', color: 'var(--color-green)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>VERIFIED ACTIVE</span>
+                </div>
+                <button className="btn btn-outline" onClick={() => setIsEditingProfile(true)} style={{ width: '100%', marginTop: '10px', padding: '8px 16px' }}>
+                  Edit Profile
+                </button>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Email Address:</span>
-                <strong>{email}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Phone Number:</span>
-                <strong>{phone || 'Not Configured'}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px' }}>
-                <span style={{ color: 'var(--color-muted)' }}>Portal Status:</span>
-                <span style={{ background: 'rgba(140, 198, 62, 0.1)', color: 'var(--color-green)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>VERIFIED ACTIVE</span>
-              </div>
-            </div>
+            ) : (
+              <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Full Name (Cannot be changed)</label>
+                  <input type="text" value={name} disabled style={{ width: '100%', padding: '8px', border: '1px solid var(--color-gray-light)', borderRadius: '4px', background: '#f4f6f9', color: '#888', cursor: 'not-allowed' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Email Address</label>
+                  <input type="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} required style={{ width: '100%', padding: '8px', border: '1px solid var(--color-gray-light)', borderRadius: '4px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Phone Number</label>
+                  <input type="text" value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} required style={{ width: '100%', padding: '8px', border: '1px solid var(--color-gray-light)', borderRadius: '4px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Physical Address</label>
+                  <textarea rows={2} value={profileAddress} onChange={(e) => setProfileAddress(e.target.value)} required style={{ width: '100%', padding: '8px', border: '1px solid var(--color-gray-light)', borderRadius: '4px', resize: 'none' }} />
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1, padding: '8px' }}>Save</button>
+                  <button type="button" className="btn btn-outline" onClick={() => {
+                    setProfileEmail(userProfile?.email || '');
+                    setProfilePhone(userProfile?.phone || '');
+                    setProfileAddress(userProfile?.address || 'Not Configured');
+                    setIsEditingProfile(false);
+                  }} style={{ flex: 1, padding: '8px' }}>Cancel</button>
+                </div>
+              </form>
+            )}
           </div>
 
           <div className="card" style={{ padding: '30px' }}>

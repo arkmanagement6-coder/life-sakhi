@@ -18,6 +18,7 @@ export interface UserDoc extends BaseDocument {
   role: 'admin' | 'volunteer' | 'donor' | 'women_distributor' | 'district_coordinator' | 'block_coordinator' | 'state_coordinator' | 'csr_partner' | 'corporate_partner' | 'hospital' | 'school' | 'ngo_partner' | 'doctor' | 'user';
   status: 'pending' | 'approved' | 'rejected' | 'active' | 'inactive';
   profileImageUrl?: string;
+  address?: string;
 }
 
 // 2. volunteers
