@@ -5,7 +5,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
@@ -23,6 +24,7 @@ interface AuthContextProps {
   mockLogin: (email: string, role: string, name: string) => void;
   updateUserProfileDetails: (email: string, phone: string, address: string, profileImageUrl?: string) => Promise<void>;
   approveUserStatus: (uid: string, status: 'active' | 'rejected') => void;
+  sendPasswordReset: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -350,6 +352,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const sendPasswordReset = async (email: string) => {
+    const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+    const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+    const dbUser = allUsers.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (err: any) {
+      if (dbUser) {
+        console.log("Mock password reset link sent to:", email);
+        return;
+      }
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -361,7 +379,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       mockLogin,
       updateUserProfileDetails,
-      approveUserStatus
+      approveUserStatus,
+      sendPasswordReset
     }}>
       {children}
     </AuthContext.Provider>
