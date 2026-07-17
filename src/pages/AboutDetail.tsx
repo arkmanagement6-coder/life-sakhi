@@ -459,14 +459,9 @@ const AboutDetail: React.FC = () => {
   };
 
   return (
-    <div className="subpage-detail-layout">
+    <div className="subpage-detail-layout page-about">
       {/* Subpage Hero Banner */}
-      <section className="subpage-hero" style={{
-        background: 'linear-gradient(135deg, rgba(10, 60, 140, 0.9) 0%, rgba(17, 24, 39, 0.75) 100%)',
-        padding: '130px 0 60px 0',
-        color: 'var(--color-white)',
-        textAlign: 'center'
-      }}>
+      <section className="subpage-hero">
         <div className="container">
           <Link to="/about" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'var(--color-white)', marginBottom: '20px', padding: '6px 15px', fontSize: '0.8rem' }}>
             <ArrowLeft size={14} /> Back to About Hub
