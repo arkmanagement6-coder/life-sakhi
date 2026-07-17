@@ -1220,23 +1220,28 @@ img {
   .footer-top {
     grid-template-columns: 1fr;
   }
-  .nav-container {
-    flex-direction: column;
-    gap: 15px;
-  }
-  .menu-items {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
   .hero-slider-container {
-    height: 60vh;
+    height: 85vh !important;
+    min-height: 550px !important;
+  }
+  .slide-content {
+    padding-top: 140px !important;
   }
   .slide-heading {
-    font-size: 2rem;
+    font-size: 2.3rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 15px !important;
   }
   .slide-text {
-    font-size: 1rem;
+    font-size: 1rem !important;
+    margin-bottom: 25px !important;
+  }
+  .slide-actions .btn {
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+  }
+  .slider-arrows {
+    display: none !important;
   }
   .timeline-container::before {
     left: 20px;

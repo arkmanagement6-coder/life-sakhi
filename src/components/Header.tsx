@@ -217,37 +217,88 @@ const Header: React.FC = () => {
       {/* CSS adjustments to handle mobile view toggle natively inside header */}
       <style>{`
         @media (max-width: 992px) {
+          .nav-container {
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 10px 15px !important;
+            gap: 0 !important;
+            width: 100% !important;
+          }
           .mobile-menu-toggle {
             display: block !important;
+            z-index: 1010;
           }
           .menu-items {
             display: none !important;
-            flex-direction: column;
-            width: 100%;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: white;
-            box-shadow: var(--shadow-xl);
-            padding: 20px;
-            z-index: 1000;
+            flex-direction: column !important;
+            width: 100% !important;
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            background: linear-gradient(180deg, var(--color-primary) 0%, #07255a 100%) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+            padding: 20px !important;
+            z-index: 1000 !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+            margin: 0 !important;
           }
           .menu-items.mobile-open {
             display: flex !important;
           }
+          .menu-items li {
+            width: 100% !important;
+          }
+          .menu-link {
+            color: var(--color-white) !important;
+            font-size: 1.05rem !important;
+            padding: 12px 18px !important;
+            margin: 4px 0 !important;
+            border-radius: 6px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            background: transparent !important;
+          }
+          .menu-link:hover, 
+          .menu-link.active {
+            background: var(--color-green) !important;
+            color: var(--color-white) !important;
+          }
           .dropdown-menu {
-            position: static;
-            display: none;
-            box-shadow: none;
-            border: none;
-            padding-left: 20px;
-            background: var(--color-light-gray);
+            position: static !important;
+            display: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 10px 15px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            margin: 5px 0 10px 0 !important;
+            border-left: 3px solid var(--color-green) !important;
+            border-radius: 6px !important;
+            width: 100% !important;
           }
           .dropdown-container:hover .dropdown-menu {
-            display: block;
+            display: block !important;
+          }
+          .dropdown-item {
+            padding: 0 !important;
+          }
+          .dropdown-item a {
+            color: rgba(255, 255, 255, 0.85) !important;
+            padding: 10px 15px !important;
+            font-size: 0.95rem !important;
+            border-radius: 4px !important;
+            display: block !important;
+            text-decoration: none !important;
+          }
+          .dropdown-item a:hover {
+            background: rgba(140, 198, 62, 0.15) !important;
+            color: var(--color-light-green) !important;
+            padding-left: 20px !important;
           }
           .nav-actions {
-            display: none;
+            display: none !important;
           }
         }
       `}</style>
