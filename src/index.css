@@ -1263,3 +1263,75 @@ img {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ==========================================
+   Fixed Header & Transparent Overlay Styles
+   ========================================== */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: var(--transition-normal);
+}
+
+.inner-page-layout main {
+  margin-top: 130px;
+}
+
+@media (max-width: 992px) {
+  .inner-page-layout main {
+    margin-top: 75px;
+  }
+}
+
+.header-transparent {
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.header-transparent .top-bar {
+  background: rgba(10, 60, 140, 0.15) !important;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-transparent .header-nav {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.header-transparent .logo-main {
+  color: var(--color-white) !important;
+}
+
+.header-transparent .logo-sub {
+  color: var(--color-light-green) !important;
+}
+
+.header-transparent .menu-link {
+  color: var(--color-white) !important;
+}
+
+.header-transparent .menu-link:hover,
+.header-transparent .menu-link.active {
+  color: var(--color-light-green) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.header-transparent .social-icon {
+  color: var(--color-white) !important;
+}
+
+.header-transparent .top-bar-item {
+  color: var(--color-white) !important;
+}
+
+.header-transparent .mobile-menu-toggle {
+  color: var(--color-white) !important;
+}
+

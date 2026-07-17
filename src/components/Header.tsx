@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Phone, Mail, Clock, User, LogOut, Heart, FileText, Menu, X } from 'lucide-react';
 import { useLang } from '../context/LangContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,7 +9,20 @@ const Header: React.FC = () => {
   const { t } = useLang();
   const { user, logout, userProfile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [scrollY, setScrollY] = React.useState(0);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isHomePage = location.pathname === '/';
+  const isTransparent = isHomePage && scrollY < 80;
 
   const handleLogout = async () => {
     await logout();
@@ -17,7 +30,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header style={{ width: '100%' }}>
+    <header className={isTransparent ? 'header-transparent' : ''}>
       {/* Top Bar */}
       <div className="top-bar">
         <div className="container">

@@ -5,7 +5,7 @@ import {
   Users, FileText, HelpCircle, 
   ChevronDown, ChevronUp, Play, ArrowRight, Activity 
 } from 'lucide-react';
-
+import HeroSlider from '../components/HeroSlider';
 
 const Home: React.FC = () => {
   
@@ -137,8 +137,8 @@ const Home: React.FC = () => {
 
   return (
     <div>
-
-
+      {/* 1. HERO SLIDER */}
+      <HeroSlider />
       {/* 2. ABOUT TRUST */}
       <section className="section-padding about-trust-section">
         <div className="container">
