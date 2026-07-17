@@ -100,8 +100,8 @@ const Header: React.FC = () => {
         <div className="container nav-container">
           <Link to="/" className="logo-section">
             <div>
-              <div className="logo-main">Life Changing Trust</div>
-              <div className="logo-sub">Educational & Charitable Trust</div>
+              <div className="logo-main">Life Changing & Educational</div>
+              <div className="logo-sub">Charitable Trust</div>
             </div>
           </Link>
 

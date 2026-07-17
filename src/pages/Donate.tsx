@@ -94,7 +94,7 @@ const Donate: React.FC = () => {
                 <span className="section-subtitle">Tax Deductions Available</span>
                 <h2 className="section-title">Support With Confidence</h2>
                 <p className="about-text">
-                  All donations made to the **Life Changing Educational & Charitable Trust** are tax-exempt under Section 80G of the Income Tax Act. We stand for complete transparency and report disbursements annually.
+                  All donations made to the **Life Changing & Educational Charitable Trust** are tax-exempt under Section 80G of the Income Tax Act. We stand for complete transparency and report disbursements annually.
                 </p>
 
                 <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>

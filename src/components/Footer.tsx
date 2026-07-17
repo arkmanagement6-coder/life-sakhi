@@ -23,9 +23,9 @@ const Footer: React.FC = () => {
         <div className="footer-top">
           {/* Brand Info */}
           <div className="footer-brand">
-            <h3>Life Changing Trust</h3>
+            <h3>Life Changing & Educational Charitable Trust</h3>
             <p>
-              Life Changing Educational & Charitable Trust is a registered non-profit organization (80G, 12A, CSR certified) working since 2022 to uplift rural communities through targeted programs.
+              Life Changing & Educational Charitable Trust is a registered non-profit organization (80G, 12A, CSR certified) working since 2022 to uplift rural communities through targeted programs.
             </p>
             <p style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-green)', fontWeight: 600 }}>
               <Award size={16} />
@@ -118,7 +118,7 @@ const Footer: React.FC = () => {
         {/* Footer Bottom */}
         <div className="footer-bottom">
           <div>
-            &copy; {new Date().getFullYear()} Life Changing Educational & Charitable Trust. All Rights Reserved.
+            &copy; {new Date().getFullYear()} Life Changing & Educational Charitable Trust. All Rights Reserved.
           </div>
           <div style={{ display: 'flex', gap: '15px' }}>
             <Link to="/privacy-policy">Privacy Policy</Link>
