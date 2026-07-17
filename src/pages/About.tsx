@@ -4,7 +4,7 @@ import { Briefcase } from 'lucide-react';
 
 const About: React.FC = () => {
   const team = [
-    { name: "Dr. Ritu Sharma", role: "Founder & Chief Trustee", bio: "Public health specialist with 15+ years experience in rural hygiene planning.", image: "/assets/team_ritu.jpg" },
+    { name: "Mr. Dinesh Pahwa", role: "Founder & Chief Trustee", bio: "Visionary philanthropist and social entrepreneur dedicated to rural upliftment.", image: "/assets/team_dinesh.jpg" },
     { name: "Sanjay Verma", role: "Co-Founder & Director", bio: "Retired academician passionate about primary digital learning pipelines.", image: "/assets/team_sanjay.jpg" },
     { name: "Anita Deshmukh", role: "State Coordinator (MH)", bio: "Leads self-help organization setups and distributor coordination.", image: "/assets/team_anita.jpg" }
   ];
@@ -62,10 +62,10 @@ const About: React.FC = () => {
             <div>
               <img 
                 src="/assets/founder.jpg" 
-                alt="Dr. Ritu Sharma" 
-                style={{ borderRadius: 'var(--border-radius-lg)', boxShadow: 'var(--shadow-xl)', width: '100%', height: '400px', objectFit: 'cover' }}
+                alt="Mr. Dinesh Pahwa" 
+                className="about-image" 
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://placehold.co/600x400/0a3c8c/ffffff?text=Dr.+Ritu+Sharma+(Founder)";
+                  (e.target as HTMLImageElement).src = "https://placehold.co/600x400/0a3c8c/ffffff?text=Mr.+Dinesh+Pahwa+(Founder)";
                 }}
               />
             </div>
@@ -73,9 +73,9 @@ const About: React.FC = () => {
               <span className="section-subtitle">Founder's Message</span>
               <h2 className="section-title">A Vision Of Dignity & Health</h2>
               <p className="about-text" style={{ fontStyle: 'italic' }}>
-                "During my clinical practice in villages, I saw young girls drop out of school because they couldn't afford sanitary napkins, or suffered severe reproductive infections due to unhygienic practices. We registered this trust to move beyond awareness: to establish local supply chains run by women themselves. True empowerment happens when health and income grow together."
+                "During my interactions in rural blocks, I saw young girls drop out of school because they couldn't afford sanitary napkins, or suffered severe reproductive infections due to unhygienic practices. We registered this trust to move beyond awareness: to establish local supply chains run by women themselves. True empowerment happens when health and income grow together."
               </p>
-              <h4 style={{ color: 'var(--color-primary)', fontSize: '1.2rem', marginBottom: '4px' }}>Dr. Ritu Sharma</h4>
+              <h4 style={{ color: 'var(--color-primary)', fontSize: '1.2rem', marginBottom: '4px' }}>Mr. Dinesh Pahwa</h4>
               <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>Founder Trustee, Life Changing Educational & Charitable Trust</p>
             </div>
           </div>

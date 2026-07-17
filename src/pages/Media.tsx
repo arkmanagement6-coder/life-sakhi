@@ -8,7 +8,7 @@ const Media: React.FC = () => {
       title: "Why Menstrual Hygiene Education is Key to Rural Development",
       excerpt: "Providing sanitary pads is only half the battle. True progress requires addressing local stigmas through targeted school seminars.",
       date: "July 12, 2026",
-      author: "Dr. Ritu Sharma",
+      author: "Mr. Dinesh Pahwa",
       image: "/assets/blog1.jpg"
     },
     {

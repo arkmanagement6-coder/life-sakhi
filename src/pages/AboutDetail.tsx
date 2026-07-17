@@ -16,7 +16,7 @@ const aboutData: Record<string, SubPageData> = {
   'founder': {
     title: "Founder's Message & History",
     subtitle: "Understanding our Origins, Passion, and Commitment",
-    description: "Life Changing Educational & Charitable Trust was founded in 2022 by a group of passionate social workers, educators, and doctors. Led by Dr. Ritu Sharma, we set out to build sustainable programs in rural blocks that link health awareness directly to local female entrepreneurship.",
+    description: "Life Changing Educational & Charitable Trust was founded in 2022 by a group of passionate social workers, educators, and doctors. Led by Mr. Dinesh Pahwa, we set out to build sustainable programs in rural blocks that link health awareness directly to local female entrepreneurship.",
     goals: [
       "Drive absolute alignment between social welfare and economic growth.",
       "Normalize conversations on female sanitation in remote villages.",
