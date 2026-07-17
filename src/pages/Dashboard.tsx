@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import { 
   Users, ShoppingBag, DollarSign, ClipboardList, 
   FileText, Download, Calendar, Activity, 
@@ -53,6 +55,107 @@ const Dashboard: React.FC = () => {
       setTimeout(() => setProfileSaveSuccess(false), 3000);
     } catch (err) {
       alert("Failed to save profile changes.");
+    }
+  };
+
+  // Admin CRUD states
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [newMemberPhone, setNewMemberPhone] = useState('');
+  const [newMemberAddress, setNewMemberAddress] = useState('');
+  const [newMemberRole, setNewMemberRole] = useState('block_coordinator');
+
+  const [editingMemberUid, setEditingMemberUid] = useState<string | null>(null);
+  const [editMemberName, setEditMemberName] = useState('');
+  const [editMemberEmail, setEditMemberEmail] = useState('');
+  const [editMemberPhone, setEditMemberPhone] = useState('');
+  const [editMemberAddress, setEditMemberAddress] = useState('');
+  const [editMemberRole, setEditMemberRole] = useState('block_coordinator');
+  const [editMemberStatus, setEditMemberStatus] = useState('active');
+
+  const handleAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const uid = "mock-uid-" + Math.random().toString(36).substring(7);
+    const userDoc = {
+      uid,
+      email: newMemberEmail,
+      displayName: newMemberName,
+      phone: newMemberPhone,
+      address: newMemberAddress,
+      role: newMemberRole as any,
+      status: 'active' as const,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+    const allUsersList = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+    allUsersList.push(userDoc);
+    localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsersList));
+
+    try {
+      await setDoc(doc(db, "users", uid), userDoc);
+    } catch (err) {
+      console.warn("Failed manual user Firestore write", err);
+    }
+
+    setNewMemberName('');
+    setNewMemberEmail('');
+    setNewMemberPhone('');
+    setNewMemberAddress('');
+    setShowAddMember(false);
+    loadAllUsers();
+  };
+
+  const handleSaveEditMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMemberUid) return;
+
+    const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+    const allUsersList = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+    const updatedList = allUsersList.map((u: any) => {
+      if (u.uid === editingMemberUid) {
+        return {
+          ...u,
+          displayName: editMemberName,
+          email: editMemberEmail,
+          phone: editMemberPhone,
+          address: editMemberAddress,
+          role: editMemberRole as any,
+          status: editMemberStatus as any,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return u;
+    });
+    localStorage.setItem('life_sakhi_all_users', JSON.stringify(updatedList));
+
+    try {
+      const targetUser = updatedList.find((u: any) => u.uid === editingMemberUid);
+      await setDoc(doc(db, "users", editingMemberUid), targetUser, { merge: true });
+    } catch (err) {
+      console.warn("Failed to update user in Firestore", err);
+    }
+
+    setEditingMemberUid(null);
+    loadAllUsers();
+  };
+
+  const handleDeleteMember = async (uid: string) => {
+    if (confirm("Are you sure you want to delete this team member? This action is permanent.")) {
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsersList = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      const filtered = allUsersList.filter((u: any) => u.uid !== uid);
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(filtered));
+
+      try {
+        await setDoc(doc(db, "users", uid), { status: 'rejected' }, { merge: true });
+      } catch (err) {
+        console.warn("Failed to delete user in Firestore", err);
+      }
+
+      loadAllUsers();
     }
   };
 
@@ -843,12 +946,113 @@ const Dashboard: React.FC = () => {
 
           {activeTab === 'all_coordinators' && (
             <div className="card" style={{ padding: '30px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
                 <h4 style={{ color: 'var(--color-primary)', margin: 0, fontWeight: 800 }}>Team Directory</h4>
-                <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
-                  Total Registered Team: <strong>{allUsers.length} members</strong>
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                  <button 
+                    onClick={() => { setShowAddMember(!showAddMember); setEditingMemberUid(null); }} 
+                    className="btn btn-primary" 
+                    style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                  >
+                    {showAddMember ? 'Close Form' : 'Add New Member'}
+                  </button>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+                    Total Registered: <strong>{allUsers.length} members</strong>
+                  </div>
                 </div>
               </div>
+
+              {/* Add Member Form */}
+              {showAddMember && (
+                <div style={{ background: '#f8f9fa', border: '1px solid #eee', borderRadius: '8px', padding: '20px', marginBottom: '25px' }}>
+                  <h5 style={{ margin: '0 0 15px 0', fontWeight: 'bold', color: 'var(--color-primary)' }}>Add New Team Member</h5>
+                  <form onSubmit={handleAddMember} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Full Name</label>
+                        <input type="text" required value={newMemberName} onChange={(e) => setNewMemberName(e.target.value)} placeholder="e.g. Dinesh Pahwa" style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Email Address</label>
+                        <input type="email" required value={newMemberEmail} onChange={(e) => setNewMemberEmail(e.target.value)} placeholder="name@example.com" style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Phone Number</label>
+                        <input type="text" required value={newMemberPhone} onChange={(e) => setNewMemberPhone(e.target.value)} placeholder="+91 98765 43210" style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>City / Address</label>
+                        <input type="text" required value={newMemberAddress} onChange={(e) => setNewMemberAddress(e.target.value)} placeholder="e.g. Agra" style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Designation (Role)</label>
+                        <select value={newMemberRole} onChange={(e) => setNewMemberRole(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px', height: '36px', boxSizing: 'border-box' }}>
+                          <option value="block_coordinator">Block Coordinator</option>
+                          <option value="district_coordinator">District Coordinator</option>
+                          <option value="state_coordinator">State Coordinator</option>
+                          <option value="women_distributor">Life Sakhi Distributor</option>
+                          <option value="doctor">Clinical Doctor</option>
+                          <option value="volunteer">Active Volunteer</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
+                      <button type="submit" className="btn btn-primary" style={{ padding: '8px 24px' }}>Save Member</button>
+                      <button type="button" className="btn btn-outline" onClick={() => setShowAddMember(false)} style={{ padding: '8px 24px' }}>Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Edit Member Form */}
+              {editingMemberUid && (
+                <div style={{ background: '#fff9e6', border: '1px solid #ffeeba', borderRadius: '8px', padding: '20px', marginBottom: '25px' }}>
+                  <h5 style={{ margin: '0 0 15px 0', fontWeight: 'bold', color: '#856404' }}>Edit Team Member Details</h5>
+                  <form onSubmit={handleSaveEditMember} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: '#856404', marginBottom: '4px' }}>Full Name</label>
+                        <input type="text" required value={editMemberName} onChange={(e) => setEditMemberName(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ffeeba', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: '#856404', marginBottom: '4px' }}>Email Address</label>
+                        <input type="email" required value={editMemberEmail} onChange={(e) => setEditMemberEmail(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ffeeba', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: '#856404', marginBottom: '4px' }}>Phone Number</label>
+                        <input type="text" required value={editMemberPhone} onChange={(e) => setEditMemberPhone(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ffeeba', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: '#856404', marginBottom: '4px' }}>City / Address</label>
+                        <input type="text" required value={editMemberAddress} onChange={(e) => setEditMemberAddress(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ffeeba', borderRadius: '4px', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: '#856404', marginBottom: '4px' }}>Designation</label>
+                        <select value={editMemberRole} onChange={(e) => setEditMemberRole(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ffeeba', borderRadius: '4px', height: '36px', boxSizing: 'border-box' }}>
+                          <option value="block_coordinator">Block Coordinator</option>
+                          <option value="district_coordinator">District Coordinator</option>
+                          <option value="state_coordinator">State Coordinator</option>
+                          <option value="women_distributor">Life Sakhi Distributor</option>
+                          <option value="doctor">Clinical Doctor</option>
+                          <option value="volunteer">Active Volunteer</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: '#856404', marginBottom: '4px' }}>Status</label>
+                        <select value={editMemberStatus} onChange={(e) => setEditMemberStatus(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ffeeba', borderRadius: '4px', height: '36px', boxSizing: 'border-box' }}>
+                          <option value="active">Approved Active</option>
+                          <option value="pending">Approval Pending</option>
+                          <option value="rejected">Suspended / Rejected</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
+                      <button type="submit" className="btn btn-primary" style={{ padding: '8px 24px' }}>Save Changes</button>
+                      <button type="button" className="btn btn-outline" onClick={() => setEditingMemberUid(null)} style={{ padding: '8px 24px' }}>Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              )}
               
               <div style={{ overflowX: 'auto' }}>
                 <table className="table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
@@ -858,6 +1062,7 @@ const Dashboard: React.FC = () => {
                       <th style={{ padding: '12px' }}>Designation</th>
                       <th style={{ padding: '12px' }}>Email Address</th>
                       <th style={{ padding: '12px' }}>Phone</th>
+                      <th style={{ padding: '12px' }}>City / Location</th>
                       <th style={{ padding: '12px' }}>Status</th>
                       <th style={{ padding: '12px', textAlign: 'center' }}>Action</th>
                     </tr>
@@ -879,6 +1084,7 @@ const Dashboard: React.FC = () => {
                         </td>
                         <td style={{ padding: '12px' }}>{u.email}</td>
                         <td style={{ padding: '12px' }}>{u.phone}</td>
+                        <td style={{ padding: '12px' }}>{u.address || 'Agra'}</td>
                         <td style={{ padding: '12px' }}>
                           <span style={{ 
                             background: u.status === 'active' ? 'rgba(140, 198, 62, 0.1)' : u.status === 'pending' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(244, 67, 54, 0.1)', 
@@ -892,22 +1098,34 @@ const Dashboard: React.FC = () => {
                           </span>
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
-                          {u.role !== 'admin' && (
-                            <button 
-                              onClick={() => { 
-                                approveUserStatus(u.uid, u.status === 'active' ? 'rejected' : 'active'); 
-                                loadAllUsers(); 
-                              }} 
-                              className="btn btn-outline" 
-                              style={{ 
-                                padding: '4px 8px', 
-                                fontSize: '0.7rem', 
-                                color: u.status === 'active' ? '#ff4d4d' : 'var(--color-green)', 
-                                borderColor: u.status === 'active' ? '#ff4d4d' : 'var(--color-green)' 
-                              }}
-                            >
-                              {u.status === 'active' ? 'Revoke' : 'Authorize'}
-                            </button>
+                          {u.role !== 'admin' ? (
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                              <button 
+                                onClick={() => {
+                                  setEditingMemberUid(u.uid);
+                                  setEditMemberName(u.displayName);
+                                  setEditMemberEmail(u.email);
+                                  setEditMemberPhone(u.phone || '');
+                                  setEditMemberAddress(u.address || 'Agra');
+                                  setEditMemberRole(u.role);
+                                  setEditMemberStatus(u.status);
+                                  setShowAddMember(false);
+                                }}
+                                className="btn btn-outline" 
+                                style={{ padding: '4px 8px', fontSize: '0.7rem' }}
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteMember(u.uid)}
+                                className="btn btn-outline" 
+                                style={{ padding: '4px 8px', fontSize: '0.7rem', color: '#ff4d4d', borderColor: '#ff4d4d' }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          ) : (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>System Owner</span>
                           )}
                         </td>
                       </tr>

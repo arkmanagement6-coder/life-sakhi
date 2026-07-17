@@ -21,6 +21,7 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AdminGate from './pages/AdminGate';
 
 import { LangProvider } from './context/LangContext';
 import { AuthProvider } from './context/AuthContext';
@@ -46,12 +47,12 @@ const ScrollToTop = () => {
 const AppContent: React.FC = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
-  const isDashboardPage = location.pathname.startsWith('/dashboard');
+  const isHideHeaderFooter = location.pathname.startsWith('/dashboard') || location.pathname === '/admin-gate';
 
   return (
-    <div className={isHomePage ? 'home-page-layout' : (isDashboardPage ? 'dashboard-page-layout' : 'inner-page-layout')} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className={isHomePage ? 'home-page-layout' : (location.pathname.startsWith('/dashboard') ? 'dashboard-page-layout' : 'inner-page-layout')} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <ScrollToTop />
-      {!isDashboardPage && <Header />}
+      {!isHideHeaderFooter && <Header />}
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -73,9 +74,10 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin-gate" element={<AdminGate />} />
         </Routes>
       </main>
-      {!isDashboardPage && <Footer />}
+      {!isHideHeaderFooter && <Footer />}
     </div>
   );
 };

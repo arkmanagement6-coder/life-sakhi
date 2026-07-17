@@ -35,15 +35,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Seed initial mock users list if not present
   useEffect(() => {
     const existingUsers = localStorage.getItem('life_sakhi_all_users');
-    if (!existingUsers) {
+    let needsSeed = !existingUsers;
+    if (existingUsers) {
+      const parsed = JSON.parse(existingUsers);
+      const hasRaviAdmin = parsed.some((u: any) => u.email.toLowerCase() === 'admin@gmail.com');
+      if (!hasRaviAdmin) {
+        needsSeed = true;
+      }
+    }
+
+    if (needsSeed) {
       const initialUsers = [
         {
-          uid: "mock-uid-admin",
-          email: "admin@lifechangingtrust.org",
-          displayName: "Admin Administrator",
+          uid: "mock-uid-admin-ravi",
+          email: "admin@gmail.com",
+          displayName: "Ravi Dhakre",
           phone: "+91 98765 43210",
           role: "admin",
           status: "active",
+          address: "Agra",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         },
@@ -269,8 +279,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       allUsers.push(existingUser);
       localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
     } else {
-      existingUser.role = role as any;
-      if (name) existingUser.displayName = name;
+      // Keep existing role and displayName to avoid overwriting them
       localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
     }
 
