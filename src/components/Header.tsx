@@ -156,12 +156,6 @@ const Header: React.FC = () => {
             <li>
               <NavLink to="/women-empowerment" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('womenEmpowerment')}</NavLink>
             </li>
-            <li>
-              <NavLink to="/projects" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('projects')}</NavLink>
-            </li>
-            <li>
-              <NavLink to="/campaigns" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('campaigns')}</NavLink>
-            </li>
             
             {/* About Submenu */}
             <li className="dropdown-container">
@@ -174,12 +168,12 @@ const Header: React.FC = () => {
                 <li className="dropdown-item"><Link to="/about#legal">80G, 12A & CSR Status</Link></li>
                 <li className="dropdown-item"><Link to="/about#team">Our Team</Link></li>
                 <li className="dropdown-item"><Link to="/about#partners">Partners & Board</Link></li>
+                <li className="dropdown-item" style={{ borderTop: '1px solid var(--color-gray-light)', paddingTop: '10px' }}><Link to="/projects">Our Projects</Link></li>
+                <li className="dropdown-item"><Link to="/campaigns">Our Campaigns</Link></li>
+                <li className="dropdown-item"><Link to="/media">Media & Publications</Link></li>
               </ul>
             </li>
 
-            <li>
-              <NavLink to="/media" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('media')}</NavLink>
-            </li>
             <li>
               <NavLink to="/contact" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('contact')}</NavLink>
             </li>

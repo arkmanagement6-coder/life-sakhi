@@ -22,7 +22,7 @@ const HeroSlider: React.FC = () => {
   const slides: Slide[] = [
     {
       id: 1,
-      image: "/assets/slide_women_health.jpg",
+      image: "/assets/slide_women_health.png",
       titleKey: "slider1Title",
       textKey: "slider1Text",
       ctaPrimaryText: "Register Now",
@@ -33,7 +33,7 @@ const HeroSlider: React.FC = () => {
     },
     {
       id: 2,
-      image: "/assets/slide_education.jpg",
+      image: "/assets/slide_education.png",
       titleKey: "slider2Title",
       textKey: "slider2Text",
       ctaPrimaryText: "Sponsor Education",
@@ -44,7 +44,7 @@ const HeroSlider: React.FC = () => {
     },
     {
       id: 3,
-      image: "/assets/slide_healthcare.jpg",
+      image: "/assets/slide_healthcare.png",
       titleKey: "slider3Title",
       textKey: "slider3Text",
       ctaPrimaryText: "Support Healthcare",
@@ -55,7 +55,7 @@ const HeroSlider: React.FC = () => {
     },
     {
       id: 4,
-      image: "/assets/slide_women_employment.jpg",
+      image: "/assets/slide_women_employment.png",
       titleKey: "slider4Title",
       textKey: "slider4Text",
       ctaPrimaryText: "Become Partner",
@@ -66,7 +66,7 @@ const HeroSlider: React.FC = () => {
     },
     {
       id: 5,
-      image: "/assets/slide_life_sakhi.jpg",
+      image: "/assets/slide_life_sakhi.png",
       titleKey: "slider5Title",
       textKey: "slider5Text",
       ctaPrimaryText: "Become Volunteer",
