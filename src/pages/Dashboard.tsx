@@ -553,6 +553,33 @@ const Dashboard: React.FC = () => {
             pointer-events: auto;
           }
         }
+
+        .btn-mobile-menu {
+          display: none;
+        }
+
+        @media (max-width: 992px) {
+          .btn-mobile-menu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .hidden-mobile {
+            display: none !important;
+          }
+          .dashboard-topbar {
+            padding: 0 15px !important;
+          }
+          .dashboard-topbar > div {
+            gap: 10px !important;
+          }
+          .dashboard-body {
+            padding: 15px !important;
+          }
+        }
       `}</style>
 
       {/* Overlay Background for Mobile Drawer */}
