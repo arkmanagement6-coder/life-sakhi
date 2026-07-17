@@ -45,7 +45,7 @@ const Register: React.FC = () => {
     try {
       await registerWithEmail(email, password, name, role, phone);
       alert("Registration Successful!");
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       alert("Failed to register. Try again.");
     } finally {

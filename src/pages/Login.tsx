@@ -24,7 +24,7 @@ const Login: React.FC = () => {
       await loginWithEmail(email, password);
       // In mock mode, update profile with selected role from helper dropdown
       mockLogin(email, selectedRole);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       alert("Failed to login. Please check credentials.");
     } finally {
@@ -36,7 +36,7 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await loginWithGoogle();
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       alert("Google Login failed.");
     } finally {
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
     } else {
       if (otpCode === '123456') {
         mockLogin(`${phone}@mobile.lifechangingtrust.org`, selectedRole);
-        navigate('/');
+        navigate('/dashboard');
       } else {
         alert("Invalid OTP code. Please enter '123456' to simulate success.");
       }

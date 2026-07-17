@@ -70,9 +70,10 @@ const Header: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '12px' }}>
               {user ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-light-green)' }}>
-                    Hi, {userProfile?.displayName || 'User'} ({userProfile?.role.replace('_', ' ')})
-                  </span>
+                  <Link to="/dashboard" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-light-green)', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}>
+                    <User size={12} />
+                    <span>Hi, {userProfile?.displayName || 'User'} ({userProfile?.role.replace('_', ' ')})</span>
+                  </Link>
                   <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', fontWeight: 600 }}>
                     <LogOut size={12} />
                     <span>Logout</span>
