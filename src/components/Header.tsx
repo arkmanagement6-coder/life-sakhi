@@ -166,8 +166,19 @@ const Header: React.FC = () => {
               </ul>
             </li>
 
-            <li>
-              <NavLink to="/women-empowerment" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>{t('womenEmpowerment')}</NavLink>
+            {/* Women Empowerment Submenu */}
+            <li className="dropdown-container">
+              <NavLink to="/women-empowerment" className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                {t('womenEmpowerment')}
+              </NavLink>
+              <ul className="dropdown-menu">
+                <li className="dropdown-item"><Link to="/women-empowerment#initiative">Life Sakhi Initiative</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment#distributors">Women Distributors</Link></li>
+                <li className="dropdown-item"><Link to="/employment#shg">Self Help Groups (SHG)</Link></li>
+                <li className="dropdown-item"><Link to="/employment#training">Vocational Training</Link></li>
+                <li className="dropdown-item"><Link to="/women-empowerment#livelihood">Livelihood Opportunities</Link></li>
+                <li className="dropdown-item"><Link to="/health#menstrual">Hygiene Advocacy</Link></li>
+              </ul>
             </li>
             
             {/* About Submenu */}
