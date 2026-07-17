@@ -1,143 +1,15 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, CheckCircle, ArrowLeft, Send } from 'lucide-react';
-
-interface SubPageData {
-  title: string;
-  subtitle: string;
-  description: string;
-  goals: string[];
-  achievements: string[];
-  faqs: { q: string; a: string }[];
-  imageText: string;
-}
-
-const educationData: Record<string, SubPageData> = {
-  'child-education': {
-    title: "Child Education Support",
-    subtitle: "Uplifting Underprivileged Children through Quality Primary Education",
-    description: "Our Child Education initiative works directly with children in rural areas and urban slums who have dropped out of school or cannot afford baseline learning resources. We establish non-formal learning centers, distribute books and uniforms, and run remedial bridge courses to prepare children for enrollment in mainstream government schools.",
-    goals: [
-      "Enroll 10,000 out-of-school children into mainstream education.",
-      "Distribute 50,000 free learning kits (bags, notebooks, pens) annually.",
-      "Establish 100 localized primary remedial support centers."
-    ],
-    achievements: [
-      "Successfully main-streamed 3,400+ children into state schools.",
-      "Distributed over 22,000 learning kits to date in backward districts.",
-      "Operate 45 remedial classes with trained community educators."
-    ],
-    faqs: [
-      { q: "How are children selected for support?", a: "Our field volunteers conduct door-to-door surveys in low-income clusters to identify out-of-school or vulnerable children." }
-    ],
-    imageText: "Child Primary Education"
-  },
-  'digital-learning': {
-    title: "Digital Smart Classrooms",
-    subtitle: "Bringing Modern Visual Learning to Government Block Schools",
-    description: "We set up interactive projection smart labs and digital boards in underfunded government primary and secondary schools. By delivering animated curriculum content and educational software, we improve student retention rates and make complex scientific subjects intuitive.",
-    goals: [
-      "Equip 200 rural schools with interactive digital smart panels.",
-      "Train 1,000 government schoolteachers in modern e-learning tools.",
-      "Lower student dropout rates in partner schools by 20%."
-    ],
-    achievements: [
-      "Successfully launched smart panels in 40 village schools.",
-      "Over 12,000 students now benefit from digital audio-visual lessons daily.",
-      "Conducted e-literacy training programs for 150 school educators."
-    ],
-    faqs: [
-      { q: "What hardware is installed in smart schools?", a: "We install short-throw projectors, high-definition display smart TVs, interactive tablets, and curriculum-mapped offline memory cards." }
-    ],
-    imageText: "Smart Classrooms Setup"
-  },
-  'scholarships': {
-    title: "Higher Education Scholarships",
-    subtitle: "Funding the Dreams of Meritorious Girls and Youth",
-    description: "Our scholarship fund offers financial grants to bright students from marginalized economic backgrounds to pursue higher secondary, engineering, medical, or vocational degree programs. We cover tuition fees, examination expenses, and hostel costs.",
-    goals: [
-      "Fund the college degree programs of 1,000 meritorious female students.",
-      "Partner with corporate donors to establish custom scholarship seats.",
-      "Provide laptops to technical scholarship awardees."
-    ],
-    achievements: [
-      "Awarded 320 full-tuition scholarships to date.",
-      "85 scholarship alumni have graduated and secured professional white-collar jobs.",
-      "70% of scholarship grants are explicitly reserved for girl students."
-    ],
-    faqs: [
-      { q: "What is the eligibility criteria for the scholarship?", a: "Candidates must have scored above 75% in 12th board exams and have a verified annual family income of less than ₹2.5 Lakhs." }
-    ],
-    imageText: "Academic Scholarships"
-  },
-  'skill-development': {
-    title: "Youth Skill Development",
-    subtitle: "Preparing the Next Generation for Modern Industry Job Markets",
-    description: "We run dedicated skill development bootcamps for rural and urban-fringe youth. Our modules cover retail sales, hospitality, office administration, and basic engineering trades, matching them with active recruiter networks.",
-    goals: [
-      "Establish 10 regional skill development centers.",
-      "Train 3,000 youth annually in employability skills.",
-      "Secure job placement rates of 80% or higher for all trainees."
-    ],
-    achievements: [
-      "Trained 1,400+ youth across multiple vocational disciplines.",
-      "Facilitated job placements for 980 candidates in logistics and retail sectors.",
-      "Partnerships established with 15 corporate hiring teams."
-    ],
-    faqs: [
-      { q: "What is the duration of the training courses?", a: "Courses range from 3 months (retail and office admin) to 6 months (technical trades)." }
-    ],
-    imageText: "Vocational Skills Training"
-  },
-  'computer-training': {
-    title: "Computer Training Programs",
-    subtitle: "Bridge the Digital Divide with Practical Software Literacy",
-    description: "Our Computer Training Labs provide hands-on lessons in MS Office, basic programming, internet navigation, and financial accounting software (like Tally). These certified programs prepare rural students for entry-level digital typing and billing roles.",
-    goals: [
-      "Train 5,000 rural youth in basic computer operations.",
-      "Provide free digital typing certifications to rural women.",
-      "Establish 25 fully-equipped IT computer laboratories."
-    ],
-    achievements: [
-      "Opened 12 high-speed internet computer laboratories in rural blocks.",
-      "Over 2,200 candidates certified in computer applications.",
-      "Enabled 300+ village girls to work as local data-entry operators."
-    ],
-    faqs: [
-      { q: "Are these courses certified?", a: "Yes, we issue a government-aligned Certificate of Completion in Computer Applications upon passing practical examinations." }
-    ],
-    imageText: "Computer Labs Setup"
-  },
-  'career-guidance': {
-    title: "Career Counselling & Guidance",
-    subtitle: "Directing Rural Students towards Promising Educational Pathways",
-    description: "Rural students often drop out after high school due to a lack of awareness regarding higher studies, competitive exams, or vocational career paths. We run career counseling seminars, psychometric mapping, and test-prep consultation clinics.",
-    goals: [
-      "Deliver career guidance seminars to 20,000 high school students.",
-      "Establish online guidance counseling portals for remote access.",
-      "Distribute free career guidebooks explaining college admission pathways."
-    ],
-    achievements: [
-      "Conducted 110 guidance sessions across high schools.",
-      "Counseled 8,500+ rural adolescents face-to-face.",
-      "Distributed 5,000 copies of 'Career Pathways Guide' to village youth groups."
-    ],
-    faqs: [
-      { q: "Do you offer guidance for competitive exams?", a: "Yes, we offer counselling on civil services, banking, railways, and state level entrance examinations." }
-    ],
-    imageText: "Career Advice Seminars"
-  }
-};
+import { CheckCircle, ArrowLeft, Send, Monitor } from 'lucide-react';
 
 const EducationDetail: React.FC = () => {
   const { subpage } = useParams<{ subpage: string }>();
   const pageKey = subpage || 'child-education';
-  const data = educationData[pageKey] || educationData['child-education'];
 
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '', education: '', income: '' });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -147,21 +19,263 @@ const EducationDetail: React.FC = () => {
     setFormSubmitted(true);
   };
 
+  // 1. Child Education Custom Layout
+  const renderChildEducation = () => (
+    <div>
+      <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+        <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>Primary Education for Out-of-School Children</h3>
+        <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '30px' }}>
+          We identify dropouts and working children in low-income zones, enrolling them in our bridge centers where they receive remedial courses to catch up on baseline reading, writing, and arithmetic before mainstream integration.
+        </p>
+
+        {/* Bridge Centers Curriculum Timeline */}
+        <h4 style={{ color: 'var(--color-primary)', marginBottom: '20px', fontWeight: 700 }}>6-Month Bridge Learning Curriculum</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '35px' }}>
+          {[
+            { duration: "Months 1 - 2: Literacy Boot", desc: "Developing phonics, letter identification, and basic sentence crafting in local languages." },
+            { duration: "Months 3 - 4: Basic Math & Logic", desc: "Teaching additions, subtraction tables, basic currency transactions, and logic games." },
+            { duration: "Months 5 - 6: Integration Prep", desc: "Aligning learning with formal state board school syllabus and passing evaluation tests." }
+          ].map((item, idx) => (
+            <div key={idx} style={{ display: 'flex', gap: '20px', background: 'var(--color-white)', padding: '20px', borderRadius: 'var(--border-radius-sm)', borderLeft: '4px solid var(--color-green)' }}>
+              <div>
+                <h5 style={{ fontWeight: 800, color: 'var(--color-primary)', marginBottom: '5px' }}>{item.duration}</h5>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', margin: 0 }}>{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // 2. Digital Learning Custom Layout
+  const renderDigitalLearning = () => (
+    <div>
+      <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+        <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>Digital smart classrooms</h3>
+        <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '25px' }}>
+          By installing visual smart project labs in underfunded government primary schools, we make science, geography, and maths fun and easy to retain.
+        </p>
+
+        {/* Smart classroom elements */}
+        <h4 style={{ color: 'var(--color-primary)', marginBottom: '20px', fontWeight: 700 }}>Smart Classroom Setup Elements</h4>
+        <div className="grid-3" style={{ gap: '20px', marginBottom: '30px' }}>
+          {[
+            { title: "HD Display Smart Boards", desc: "Visual screens showing high-definition animated educational cartoons." },
+            { title: "Offline Study Cards", desc: "Curriculum aligned flash drives loaded with lessons, no internet required." },
+            { title: "Solar Power Backup", desc: "Equipped with mini solar batteries to stay active during village power outages." }
+          ].map((item, idx) => (
+            <div key={idx} className="card" style={{ padding: '20px', background: 'var(--color-white)', textAlign: 'center' }}>
+              <Monitor size={32} color="var(--color-green)" style={{ marginBottom: '10px' }} />
+              <h5 style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px' }}>{item.title}</h5>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', margin: 0 }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // 3. Scholarships Layout
+  const renderScholarships = () => (
+    <div>
+      <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+        <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>Merit-cum-Means Scholarships</h3>
+        <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '25px' }}>
+          We provide financial aid packages to bright students from low-income families to pursue high school diplomas or professional college degrees.
+        </p>
+
+        {/* Scholarship eligibility tiers */}
+        <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 700 }}>Scholarship Grant Tiers</h4>
+        <div style={{ overflowX: 'auto', marginBottom: '30px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ background: 'var(--color-primary)', color: 'var(--color-white)' }}>
+                <th style={{ padding: '12px 15px' }}>Scholarship Category</th>
+                <th style={{ padding: '12px 15px' }}>Annual Grant Amount</th>
+                <th style={{ padding: '12px 15px' }}>Coverage Details</th>
+                <th style={{ padding: '12px 15px' }}>Eligibility Marks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid var(--color-gray-light)' }}>
+                <td style={{ padding: '12px 15px', fontWeight: 600 }}>High School (9th-12th)</td>
+                <td style={{ padding: '12px 15px', color: 'var(--color-green)', fontWeight: 600 }}>₹12,000</td>
+                <td style={{ padding: '12px 15px' }}>Books, stationery, uniforms & board fees</td>
+                <td style={{ padding: '12px 15px' }}>&gt; 70% in last exam</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid var(--color-gray-light)', background: '#f9f9f9' }}>
+                <td style={{ padding: '12px 15px', fontWeight: 600 }}>Undergraduate Degree</td>
+                <td style={{ padding: '12px 15px', color: 'var(--color-green)', fontWeight: 600 }}>₹35,000</td>
+                <td style={{ padding: '12px 15px' }}>College tuition fee reimbursement</td>
+                <td style={{ padding: '12px 15px' }}>&gt; 75% in 12th board</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid var(--color-gray-light)' }}>
+                <td style={{ padding: '12px 15px', fontWeight: 600 }}>Technical / Professional (BTech/MBBS)</td>
+                <td style={{ padding: '12px 15px', color: 'var(--color-green)', fontWeight: 600 }}>₹75,000</td>
+                <td style={{ padding: '12px 15px' }}>Hostel fees and full academic tuition</td>
+                <td style={{ padding: '12px 15px' }}>&gt; 80% in 12th + JEE/NEET rank</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  // 4. Skill Development Layout
+  const renderSkillDevelopment = () => (
+    <div>
+      <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+        <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>Youth Employability Training</h3>
+        <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '25px' }}>
+          We prepare village youth for entry-level jobs in corporate sectors through soft skills, interview prep, and billing courses.
+        </p>
+
+        {/* Skill pathways */}
+        <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 700 }}>Our Employability Pathway</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px' }}>
+          {[
+            { step: "Aptitude & Communication", detail: "Spoken English, retail conversation flows, and confidence training." },
+            { step: "Retail & Customer Relations", desc: "Understanding checkout points, billing protocols, and warehouse registers." },
+            { step: "Job Placement Drives", desc: "Facilitating mock interviews and placing candidates directly in partner retail networks." }
+          ].map((item, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'var(--color-green)', color: 'var(--color-white)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700 }}>{idx + 1}</div>
+              <div>
+                <strong>{item.step}</strong> - <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>{item.detail || item.desc}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // 5. Computer Training Layout
+  const renderComputerTraining = () => (
+    <div>
+      <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+        <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>Practical IT & Software Literacy</h3>
+        <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '25px' }}>
+          Establishing high-speed computer labs to offer certification in MS Office, internet usage, and financial software.
+        </p>
+
+        {/* Course options */}
+        <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 700 }}>Certified IT Course Modules</h4>
+        <div className="grid-3" style={{ gap: '20px', marginBottom: '30px' }}>
+          {[
+            { title: "Office Basics", desc: "Word typing, spreadsheet formulas, slide design." },
+            { title: "Tally Accounting", desc: "Basic bookkeeping, billing logs, and tax ledger management." },
+            { title: "Web Basics", desc: "Safe browsing, emails, online forms, and typing tests." }
+          ].map((item, idx) => (
+            <div key={idx} className="card" style={{ padding: '20px', background: 'var(--color-white)', borderLeft: '4px solid var(--color-green)' }}>
+              <h5 style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '8px' }}>{item.title}</h5>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', margin: 0 }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // 6. Career Guidance Layout
+  const renderCareerGuidance = () => (
+    <div>
+      <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
+        <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>Adolescent Career Counselling</h3>
+        <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '25px' }}>
+          Rural high school students are mentored through psychometric tests and guidebooks to make informed choices.
+        </p>
+
+        <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 700 }}>Counselling Elements</h4>
+        <div className="grid-2" style={{ gap: '20px', marginBottom: '30px' }}>
+          <div className="card" style={{ padding: '20px', background: 'var(--color-white)' }}>
+            <h5 style={{ fontWeight: 700, color: 'var(--color-primary)' }}>Competency Mapping</h5>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>Assessing student interests and matching them with technical or vocational careers.</p>
+          </div>
+          <div className="card" style={{ padding: '20px', background: 'var(--color-white)' }}>
+            <h5 style={{ fontWeight: 700, color: 'var(--color-primary)' }}>Admission Support</h5>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>Assisting candidates with college applications, fee waiver policies, and entrance preparations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const getSubpageContent = () => {
+    switch (pageKey) {
+      case 'child-education':
+        return renderChildEducation();
+      case 'digital-learning':
+        return renderDigitalLearning();
+      case 'scholarships':
+        return renderScholarships();
+      case 'skill-development':
+        return renderSkillDevelopment();
+      case 'computer-training':
+        return renderComputerTraining();
+      case 'career-guidance':
+        return renderCareerGuidance();
+      default:
+        return renderChildEducation();
+    }
+  };
+
+  const getSubpageHeader = () => {
+    switch (pageKey) {
+      case 'child-education':
+        return { title: "Child Education Support", desc: "Uplifting Underprivileged Children through Quality Primary Education" };
+      case 'digital-learning':
+        return { title: "Digital Smart Classrooms", desc: "Bringing Modern Visual Learning to Government Block Schools" };
+      case 'scholarships':
+        return { title: "Higher Education Scholarships", desc: "Funding the Dreams of Meritorious Girls and Youth" };
+      case 'skill-development':
+        return { title: "Youth Skill Development", desc: "Preparing the Next Generation for Modern Industry Job Markets" };
+      case 'computer-training':
+        return { title: "Computer Training Programs", desc: "Bridging the Digital Divide with Practical Software Literacy" };
+      case 'career-guidance':
+        return { title: "Career Counselling & Guidance", desc: "Directing Rural Students towards Promising Educational Pathways" };
+      default:
+        return { title: "Education Programs", desc: "Empowering Lives Through Education" };
+    }
+  };
+
+  const headerDetails = getSubpageHeader();
+
+  const getFormInputs = () => {
+    if (pageKey === 'scholarships') {
+      return (
+        <>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Last Class Score (%)</label>
+            <input type="text" name="education" required value={formData.education} onChange={handleInputChange} style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} placeholder="e.g. 84%" />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Annual Family Income</label>
+            <input type="text" name="income" required value={formData.income} onChange={handleInputChange} style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} placeholder="e.g. Under ₹2.5 Lakhs" />
+          </div>
+        </>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="subpage-detail-layout">
       {/* Subpage Hero Banner */}
       <section className="subpage-hero" style={{
         background: 'linear-gradient(135deg, rgba(10, 60, 140, 0.9) 0%, rgba(17, 24, 39, 0.75) 100%)',
-        padding: '120px 0 60px 0',
+        padding: '130px 0 60px 0',
         color: 'var(--color-white)',
         textAlign: 'center'
       }}>
         <div className="container">
           <Link to="/education" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'var(--color-white)', marginBottom: '20px', padding: '6px 15px', fontSize: '0.8rem' }}>
-            <ArrowLeft size={14} /> Back to Education Page
+            <ArrowLeft size={14} /> Back to Education Hub
           </Link>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-light-green)', marginBottom: '10px' }}>{data.title}</h1>
-          <p style={{ fontSize: '1.2rem', fontWeight: 300, opacity: 0.9, maxWidth: '800px', margin: '0 auto' }}>{data.subtitle}</p>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-green)', marginBottom: '10px' }}>{headerDetails.title}</h1>
+          <p style={{ fontSize: '1.2rem', fontWeight: 300, opacity: 0.9, maxWidth: '800px', margin: '0 auto' }}>{headerDetails.desc}</p>
         </div>
       </section>
 
@@ -171,66 +285,29 @@ const EducationDetail: React.FC = () => {
           <div className="grid-3" style={{ gap: '40px', alignItems: 'flex-start' }}>
             {/* Detailed Content (2 columns width) */}
             <div style={{ gridColumn: 'span 2' }}>
-              <div className="card" style={{ padding: '40px', marginBottom: '30px' }}>
-                <h3 style={{ color: 'var(--color-primary)', fontSize: '1.6rem', marginBottom: '20px', fontWeight: 700 }}>About the Initiative</h3>
-                <p className="about-text" style={{ fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '30px' }}>{data.description}</p>
-                
-                <div className="grid-2" style={{ gap: '30px' }}>
-                  <div>
-                    <h4 style={{ color: 'var(--color-green)', marginBottom: '15px', fontWeight: 700 }}>Program Goals</h4>
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
-                      {data.goals.map((goal, idx) => (
-                        <li key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px', fontSize: '0.95rem' }}>
-                          <CheckCircle size={16} color="var(--color-green)" style={{ flexShrink: 0, marginTop: '3px' }} />
-                          <span>{goal}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 700 }}>Key Achievements</h4>
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
-                      {data.achievements.map((ach, idx) => (
-                        <li key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px', fontSize: '0.95rem' }}>
-                          <Heart size={16} color="var(--color-green)" style={{ flexShrink: 0, marginTop: '3px' }} />
-                          <span>{ach}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* FAQs */}
-              <div className="card" style={{ padding: '40px' }}>
-                <h3 style={{ color: 'var(--color-primary)', fontSize: '1.4rem', marginBottom: '20px', fontWeight: 700 }}>Frequently Asked Questions</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  {data.faqs.map((faq, idx) => (
-                    <div key={idx} style={{ borderBottom: '1px solid var(--color-gray-light)', paddingBottom: '15px' }}>
-                      <h5 style={{ color: 'var(--color-primary)', fontSize: '1.05rem', fontWeight: 700, marginBottom: '8px' }}>Q: {faq.q}</h5>
-                      <p style={{ color: 'var(--color-muted)', fontSize: '0.95rem', lineHeight: '1.6' }}>{faq.a}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {getSubpageContent()}
             </div>
 
-            {/* Quick Action Side Form */}
+            {/* Side form */}
             <div>
               <div className="card" style={{ padding: '30px', position: 'sticky', top: '100px' }}>
-                <h4 style={{ color: 'var(--color-primary)', fontSize: '1.25rem', fontWeight: 800, marginBottom: '5px' }}>Scholarship / Intake Query</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '20px' }}>Apply for training, smart tools, or submit scholarship requests.</p>
+                <h4 style={{ color: 'var(--color-primary)', fontSize: '1.25rem', fontWeight: 800, marginBottom: '5px' }}>
+                  {pageKey === 'scholarships' ? 'Scholarship Application' : 'Request Program Access'}
+                </h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '20px' }}>
+                  {pageKey === 'scholarships' ? 'Fill out the initial verification details below.' : 'Submit a request to access educational aid or smart tools.'}
+                </p>
 
                 {formSubmitted ? (
                   <div style={{ textAlign: 'center', padding: '30px 10px', background: 'rgba(140, 198, 62, 0.08)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-green)' }}>
                     <CheckCircle size={48} color="var(--color-green)" style={{ margin: '0 auto 15px auto' }} />
                     <h5 style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '5px' }}>Application Submitted!</h5>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>Our educational coordinator will review and contact you shortly.</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>Our coordinator will review and contact you shortly.</p>
                   </div>
                 ) : (
                   <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Student / Applicant Name</label>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Applicant Name</label>
                       <input 
                         type="text" 
                         name="name" 
@@ -238,11 +315,11 @@ const EducationDetail: React.FC = () => {
                         value={formData.name} 
                         onChange={handleInputChange} 
                         style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
-                        placeholder="Enter applicant's name" 
+                        placeholder="Enter full name" 
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Contact Number</label>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Contact Phone</label>
                       <input 
                         type="tel" 
                         name="phone" 
@@ -250,11 +327,11 @@ const EducationDetail: React.FC = () => {
                         value={formData.phone} 
                         onChange={handleInputChange} 
                         style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem' }} 
-                        placeholder="10-digit phone number" 
+                        placeholder="10-digit mobile number" 
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Email ID</label>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Email Address</label>
                       <input 
                         type="email" 
                         name="email" 
@@ -265,8 +342,9 @@ const EducationDetail: React.FC = () => {
                         placeholder="Enter email address" 
                       />
                     </div>
+                    {getFormInputs()}
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Academic / Skill Background</label>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '5px' }}>Details / Requirements</label>
                       <textarea 
                         name="message" 
                         rows={4} 
@@ -274,11 +352,11 @@ const EducationDetail: React.FC = () => {
                         value={formData.message} 
                         onChange={handleInputChange} 
                         style={{ width: '100%', padding: '10px 15px', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)', outline: 'none', fontSize: '0.9rem', resize: 'vertical' }} 
-                        placeholder="Detail recent class passed, marks obtained, or school name..." 
+                        placeholder="State your details..." 
                       />
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>
-                      <Send size={16} /> Submit Application
+                      <Send size={16} /> Submit Request
                     </button>
                   </form>
                 )}
