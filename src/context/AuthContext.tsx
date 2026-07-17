@@ -8,7 +8,8 @@ import {
   updateProfile
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
+import { auth, googleProvider, db } from '../firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import type { UserDoc } from '../dbSchema';
 
 interface AuthContextProps {
@@ -118,21 +119,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
-        // In a real application, fetch user doc from firestore:
-        // const docRef = doc(db, "users", firebaseUser.uid);
-        // const docSnap = await getDoc(docRef);
-        // For now, construct dynamic profile:
-        const profile: UserDoc = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          displayName: firebaseUser.displayName || 'Trust Member',
-          phone: firebaseUser.phoneNumber || '',
-          role: 'user', // Default role
-          status: 'active',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        setUserProfile(profile);
+        try {
+          const docSnap = await getDoc(doc(db, "users", firebaseUser.uid));
+          if (docSnap.exists()) {
+            const profile = docSnap.data() as UserDoc;
+            setUserProfile(profile);
+            localStorage.setItem('life_sakhi_mock_user', JSON.stringify(profile));
+          } else {
+            const profile: UserDoc = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              displayName: firebaseUser.displayName || 'Trust Member',
+              phone: firebaseUser.phoneNumber || '',
+              role: 'user',
+              status: 'active',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+            await setDoc(doc(db, "users", firebaseUser.uid), profile);
+            setUserProfile(profile);
+            localStorage.setItem('life_sakhi_mock_user', JSON.stringify(profile));
+          }
+        } catch (err) {
+          console.warn("Firestore profile fetch failed. Falling back to local data.", err);
+          const profile: UserDoc = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: firebaseUser.displayName || 'Trust Member',
+            phone: firebaseUser.phoneNumber || '',
+            role: 'user',
+            status: 'active',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          setUserProfile(profile);
+        }
       } else {
         setUser(null);
         setUserProfile(null);
@@ -167,7 +188,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const credential = await createUserWithEmailAndPassword(auth, email, pass);
       if (credential.user) {
         await updateProfile(credential.user, { displayName: name });
-        // Set Firestore user profile in real app.
+        const userDoc: UserDoc = {
+          uid: credential.user.uid,
+          email,
+          displayName: name,
+          phone,
+          role,
+          status: (role === 'user' || role === 'donor' || role === 'admin') ? 'active' : 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        await setDoc(doc(db, "users", credential.user.uid), userDoc);
+        
+        // Also write to local storage list for local fallback query sync
+        const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+        const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+        allUsers.push(userDoc);
+        localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
+
+        localStorage.setItem('life_sakhi_mock_user', JSON.stringify(userDoc));
+        setUserProfile(userDoc);
       }
     } catch (e: any) {
       console.warn("Firebase Registration failed/not configured. Saving mock user session.", e);
@@ -261,10 +301,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
       const updatedUsers = allUsers.map((u: any) => u.uid === userProfile.uid ? updatedProfile : u);
       localStorage.setItem('life_sakhi_all_users', JSON.stringify(updatedUsers));
+
+      // Real Firebase database update
+      try {
+        await setDoc(doc(db, "users", userProfile.uid), updatedProfile, { merge: true });
+      } catch (err) {
+        console.warn("Failed to update profile in Firestore", err);
+      }
     }
   };
 
-  const approveUserStatus = (uid: string, status: 'active' | 'rejected') => {
+  const approveUserStatus = async (uid: string, status: 'active' | 'rejected') => {
     const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
     const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
     const updatedUsers = allUsers.map((u: any) => {
@@ -283,6 +330,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('life_sakhi_mock_user', JSON.stringify(current));
         setUserProfile(current);
       }
+    }
+
+    // Real Firebase database update status
+    try {
+      await setDoc(doc(db, "users", uid), { status }, { merge: true });
+    } catch (err) {
+      console.warn("Failed to update approval status in Firestore", err);
     }
   };
 
