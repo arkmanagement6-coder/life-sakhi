@@ -144,14 +144,14 @@ img {
 }
 
 .btn-primary {
-  background-color: var(--color-primary);
+  background-color: var(--color-green);
   color: var(--color-white);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-hover);
+  background-color: #7bb532;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(10, 60, 140, 0.2);
+  box-shadow: 0 4px 12px rgba(140, 198, 62, 0.3);
 }
 
 .btn-secondary {
@@ -167,12 +167,12 @@ img {
 
 .btn-outline {
   background-color: transparent;
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-green);
+  color: var(--color-green);
 }
 
 .btn-outline:hover {
-  background-color: var(--color-primary);
+  background-color: var(--color-green);
   color: var(--color-white);
   transform: translateY(-2px);
 }
