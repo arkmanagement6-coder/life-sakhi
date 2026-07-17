@@ -335,8 +335,8 @@ const AboutDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Directory Grid */}
-          <div style={{ borderTop: '1px solid #eee', paddingTop: '25px' }}>
+          {/* Directory Grid with Fixed Scroll Area */}
+          <div style={{ borderTop: '1px solid #eee', paddingTop: '25px', maxHeight: '550px', overflowY: 'auto', paddingRight: '10px' }}>
             {filteredMembers.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px 20px', background: '#f8f9fa', borderRadius: '8px', color: 'var(--color-muted)' }}>
                 <Users size={36} style={{ marginBottom: '10px', color: 'var(--color-primary)', opacity: 0.5 }} />

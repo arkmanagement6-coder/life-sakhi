@@ -67,6 +67,7 @@ const Dashboard: React.FC = () => {
   const [newMemberPhone, setNewMemberPhone] = useState('');
   const [newMemberAddress, setNewMemberAddress] = useState('');
   const [newMemberRole, setNewMemberRole] = useState('block_coordinator');
+  const [newMemberImage, setNewMemberImage] = useState('');
 
   const [editingMemberUid, setEditingMemberUid] = useState<string | null>(null);
   const [editMemberName, setEditMemberName] = useState('');
@@ -75,6 +76,7 @@ const Dashboard: React.FC = () => {
   const [editMemberAddress, setEditMemberAddress] = useState('');
   const [editMemberRole, setEditMemberRole] = useState('block_coordinator');
   const [editMemberStatus, setEditMemberStatus] = useState('active');
+  const [editMemberImage, setEditMemberImage] = useState('');
 
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +89,7 @@ const Dashboard: React.FC = () => {
       address: newMemberAddress,
       role: newMemberRole as any,
       status: 'active' as const,
+      profileImageUrl: newMemberImage,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -106,6 +109,7 @@ const Dashboard: React.FC = () => {
     setNewMemberEmail('');
     setNewMemberPhone('');
     setNewMemberAddress('');
+    setNewMemberImage('');
     setShowAddMember(false);
     loadAllUsers();
   };
@@ -126,6 +130,7 @@ const Dashboard: React.FC = () => {
           address: editMemberAddress,
           role: editMemberRole as any,
           status: editMemberStatus as any,
+          profileImageUrl: editMemberImage,
           updatedAt: new Date().toISOString()
         };
       }
@@ -141,6 +146,7 @@ const Dashboard: React.FC = () => {
     }
 
     setEditingMemberUid(null);
+    setEditMemberImage('');
     loadAllUsers();
   };
 
@@ -1038,6 +1044,54 @@ const Dashboard: React.FC = () => {
                           <option value="volunteer">Active Volunteer</option>
                         </select>
                       </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '4px' }}>Profile Photo</label>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const img = new Image();
+                              const objectUrl = URL.createObjectURL(file);
+                              img.src = objectUrl;
+                              img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const MAX_SIZE = 250;
+                                let width = img.width;
+                                let height = img.height;
+                                if (width > height) {
+                                  if (width > MAX_SIZE) {
+                                    height *= MAX_SIZE / width;
+                                    width = MAX_SIZE;
+                                  }
+                                } else {
+                                  if (height > MAX_SIZE) {
+                                    width *= MAX_SIZE / height;
+                                    height = MAX_SIZE;
+                                  }
+                                }
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                if (ctx) {
+                                  ctx.drawImage(img, 0, 0, width, height);
+                                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+                                  setNewMemberImage(compressedBase64);
+                                }
+                                URL.revokeObjectURL(objectUrl);
+                              };
+                            }
+                          }} 
+                          style={{ fontSize: '0.8rem', width: '100%', padding: '4px 0' }} 
+                        />
+                        {newMemberImage && (
+                          <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <img src={newMemberImage} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                            <span style={{ fontSize: '0.7rem', color: 'var(--color-green)' }}>Compressed</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
                       <button type="submit" className="btn btn-primary" style={{ padding: '8px 24px' }}>Save Member</button>
@@ -1087,6 +1141,54 @@ const Dashboard: React.FC = () => {
                           <option value="pending">Approval Pending</option>
                           <option value="rejected">Suspended / Rejected</option>
                         </select>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: '#856404', marginBottom: '4px' }}>Profile Photo</label>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const img = new Image();
+                              const objectUrl = URL.createObjectURL(file);
+                              img.src = objectUrl;
+                              img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const MAX_SIZE = 250;
+                                let width = img.width;
+                                let height = img.height;
+                                if (width > height) {
+                                  if (width > MAX_SIZE) {
+                                    height *= MAX_SIZE / width;
+                                    width = MAX_SIZE;
+                                  }
+                                } else {
+                                  if (height > MAX_SIZE) {
+                                    width *= MAX_SIZE / height;
+                                    height = MAX_SIZE;
+                                  }
+                                }
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                if (ctx) {
+                                  ctx.drawImage(img, 0, 0, width, height);
+                                  const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+                                  setEditMemberImage(compressedBase64);
+                                }
+                                URL.revokeObjectURL(objectUrl);
+                              };
+                            }
+                          }} 
+                          style={{ fontSize: '0.8rem', width: '100%', padding: '4px 0' }} 
+                        />
+                        {editMemberImage && (
+                          <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <img src={editMemberImage} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                            <span style={{ fontSize: '0.7rem', color: 'var(--color-green)' }}>Compressed</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
@@ -1152,6 +1254,7 @@ const Dashboard: React.FC = () => {
                                   setEditMemberAddress(u.address || 'Agra');
                                   setEditMemberRole(u.role);
                                   setEditMemberStatus(u.status);
+                                  setEditMemberImage(u.profileImageUrl || '');
                                   setShowAddMember(false);
                                 }}
                                 className="btn btn-outline" 
