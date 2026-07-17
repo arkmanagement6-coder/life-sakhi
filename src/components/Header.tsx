@@ -98,7 +98,20 @@ const Header: React.FC = () => {
       {/* Main Navigation */}
       <nav className="header-nav">
         <div className="container nav-container">
-          <Link to="/" className="logo-section">
+          <Link to="/" className="logo-section" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              src="/assets/logo.jpg" 
+              alt="Life Changing & Educational Charitable Trust Logo" 
+              style={{ 
+                height: '60px', 
+                width: '60px', 
+                borderRadius: '50%', 
+                objectFit: 'cover', 
+                border: '2px solid var(--color-green)',
+                background: '#ffffff',
+                flexShrink: 0
+              }} 
+            />
             <div>
               <div className="logo-main">Life Changing & Educational</div>
               <div className="logo-sub">Charitable Trust</div>
