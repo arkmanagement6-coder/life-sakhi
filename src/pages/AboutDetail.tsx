@@ -150,7 +150,7 @@ const AboutDetail: React.FC = () => {
     const trustees = [
       { name: "Mr. Dinesh Pahwa", role: "Founder & Chief Trustee", bio: "20+ years coordinating rural health diagnostics and primary digital education drives." },
       { name: "Sanjay Verma", role: "Co-Founder & Director", bio: "Retired academician managing Smart Classrooms and educational curriculum mapping." },
-      { name: "Ravi Dhakre", role: "Secretary & Head of Operations", bio: "Leads database coordination, administration desk, and logistical supply chain." },
+      { name: "Pankaj Kumar", role: "Secretary & Head of Operations", bio: "Leads database coordination, administration desk, and logistical supply chain." },
       { name: "Dr. Anita Deshmukh", role: "Advisory Board Member & Clinical Head", bio: "Directs Self Help Group bank linkages and organizes rural medical diagnostic camps." },
       { name: "Col. Satish Kumar (Retd.)", role: "Director of Supply Chain & Drives", bio: "Manages logistical deployment of sanitary pad stocks and smart classrooms." },
       { name: "Sunita Rao", role: "Director of Women's Welfare", bio: "Coordinates training programs for women distributors under Life Sakhi initiative." },
