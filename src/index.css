@@ -1261,7 +1261,39 @@ img {
     left: 10px !important;
   }
   .counter-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .awareness-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+  }
+  .gallery-filters {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 10px !important;
+  }
+  .gallery-overlay {
+    opacity: 1 !important;
+    background: rgba(10, 60, 140, 0.75) !important;
+  }
+  .life-sakhi-content {
+    padding: 30px !important;
+  }
+  .life-sakhi-img-wrapper {
+    min-height: 250px !important;
+    height: 250px !important;
+  }
+  .life-sakhi-title {
+    font-size: 2.0rem !important;
+  }
+  .footer-bottom {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 15px !important;
   }
   .about-stats {
     grid-template-columns: 1fr;
@@ -1270,7 +1302,13 @@ img {
 
 @media (max-width: 480px) {
   .counter-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr !important;
+  }
+  .awareness-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .gallery-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 

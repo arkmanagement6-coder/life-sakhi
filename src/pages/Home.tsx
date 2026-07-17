@@ -518,7 +518,7 @@ const Home: React.FC = () => {
           <div className="gallery-grid">
             {filteredGallery.map((item) => (
               <div className="gallery-card" key={item.id}>
-                <img src={item.url} alt={item.title} onError={(e) => { (e.target as HTMLImageElement).src = `https://placehold.co/400x300/0a3c8c/ffffff?text=${encodeURIComponent(item.title)}`; }} />
+                <img src={item.url} alt={item.title} onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x300/0a3c8c/ffffff?text=Life+Sakhi"; }} />
                 <div className="gallery-overlay">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.title}</span>
