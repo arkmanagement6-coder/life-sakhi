@@ -17,8 +17,8 @@ interface AuthContextProps {
   user: User | null;
   userProfile: UserDoc | null;
   loading: boolean;
-  loginWithGoogle: () => Promise<void>;
-  loginWithEmail: (email: string, pass: string) => Promise<void>;
+  loginWithGoogle: () => Promise<any>;
+  loginWithEmail: (email: string, pass: string) => Promise<any>;
   registerWithEmail: (email: string, pass: string, name: string, role: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
   mockLogin: (email: string, role: string, name: string) => void;
@@ -138,13 +138,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUserProfile(profile);
             localStorage.setItem('life_sakhi_mock_user', JSON.stringify(profile));
           } else {
+            const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+            const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+            const localUser = allUsers.find((u: any) => u.email.toLowerCase() === firebaseUser.email?.toLowerCase());
+
             const profile: UserDoc = {
               uid: firebaseUser.uid,
               email: firebaseUser.email || '',
-              displayName: firebaseUser.displayName || 'Trust Member',
-              phone: firebaseUser.phoneNumber || '',
-              role: 'user',
-              status: 'active',
+              displayName: localUser?.displayName || firebaseUser.displayName || 'Trust Member',
+              phone: localUser?.phone || firebaseUser.phoneNumber || '',
+              role: localUser?.role || 'user',
+              status: localUser?.status || 'active',
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
             };
@@ -154,13 +158,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } catch (err) {
           console.warn("Firestore profile fetch failed. Falling back to local data.", err);
+          const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+          const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+          const localUser = allUsers.find((u: any) => u.email.toLowerCase() === firebaseUser.email?.toLowerCase());
+
           const profile: UserDoc = {
             uid: firebaseUser.uid,
             email: firebaseUser.email || '',
-            displayName: firebaseUser.displayName || 'Trust Member',
-            phone: firebaseUser.phoneNumber || '',
-            role: 'user',
-            status: 'active',
+            displayName: localUser?.displayName || firebaseUser.displayName || 'Trust Member',
+            phone: localUser?.phone || firebaseUser.phoneNumber || '',
+            role: localUser?.role || 'user',
+            status: localUser?.status || 'active',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           };
@@ -178,20 +186,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      return result.user;
     } catch (e: any) {
       console.warn("Firebase Google login failed/not configured. Falling back to mock login.", e);
-      mockLogin("google.user@example.com", "donor", "Google User");
+      return {
+        email: "google.user@example.com",
+        displayName: "Google User",
+        uid: "mock-google-uid-123"
+      };
     }
   };
 
   const loginWithEmail = async (email: string, pass: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      const result = await signInWithEmailAndPassword(auth, email, pass);
+      return result.user;
     } catch (e: any) {
       console.warn("Firebase Email login failed/not configured. Checking mock credentials.", e);
       // Fallback to mock session
-      mockLogin(email, "user", "");
+      return {
+        email,
+        displayName: email.split('@')[0],
+        uid: "mock-email-uid-" + Math.random().toString(36).substring(7)
+      };
     }
   };
 

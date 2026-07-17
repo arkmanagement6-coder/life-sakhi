@@ -19,7 +19,29 @@ const Login: React.FC = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
 
+  // Google Pending signup states
+  const [googlePendingUser, setGooglePendingUser] = useState<{ email: string; displayName: string; uid: string } | null>(null);
+  const [googleSelectedRole, setGoogleSelectedRole] = useState('user');
+  const [googlePhone, setGooglePhone] = useState('');
+  const [googleAddress, setGoogleAddress] = useState('');
+
   const [loading, setLoading] = useState(false);
+
+  const rolesList = [
+    { code: 'user', name: 'Normal User / Supporter' },
+    { code: 'volunteer', name: 'Volunteer Advocate' },
+    { code: 'donor', name: 'Donor / Benefactor' },
+    { code: 'women_distributor', name: 'Women Distributor (Life Sakhi)' },
+    { code: 'district_coordinator', name: 'District Coordinator' },
+    { code: 'block_coordinator', name: 'Block Coordinator' },
+    { code: 'state_coordinator', name: 'State Coordinator' },
+    { code: 'csr_partner', name: 'CSR Partner' },
+    { code: 'corporate_partner', name: 'Hiring/Corporate Partner' },
+    { code: 'hospital', name: 'Hospital Partner' },
+    { code: 'school', name: 'School Partner' },
+    { code: 'ngo_partner', name: 'NGO Partner' },
+    { code: 'doctor', name: 'Doctor / Clinical Volunteer' }
+  ];
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,24 +71,73 @@ const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      await loginWithGoogle();
-      
+      const googleUser = await loginWithGoogle();
+      if (!googleUser) return;
+
+      const userEmail = googleUser.email || "google.user@example.com";
+      const displayName = googleUser.displayName || "Google User";
+      const uid = googleUser.uid || "mock-google-uid-123";
+
+      // Check if user already exists in database
       const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
       const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
-      const googleEmail = "googleuser@gmail.com";
-      const dbUser = allUsers.find((u: any) => u.email.toLowerCase() === googleEmail.toLowerCase());
+      const dbUser = allUsers.find((u: any) => u.email.toLowerCase() === userEmail.toLowerCase());
 
       if (dbUser) {
-        mockLogin(googleEmail, dbUser.role, dbUser.displayName);
+        // Existing user: direct login and navigate
+        mockLogin(userEmail, dbUser.role, dbUser.displayName);
+        navigate('/dashboard');
       } else {
-        mockLogin(googleEmail, 'user', 'Google Supporter');
+        // New user: toggle complete registration form
+        setGooglePendingUser({ email: userEmail, displayName, uid });
       }
-      navigate('/dashboard');
     } catch (err) {
       alert("Google Login failed.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleCompleteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!googlePendingUser) return;
+
+    const email = googlePendingUser.email;
+    const displayName = googlePendingUser.displayName;
+    const uid = googlePendingUser.uid;
+
+    const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+    const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+    
+    // Add new user profile to database
+    const newUser = {
+      uid,
+      email,
+      displayName,
+      phone: googlePhone,
+      address: googleAddress,
+      role: googleSelectedRole,
+      status: (googleSelectedRole === 'user' || googleSelectedRole === 'donor' || googleSelectedRole === 'admin') ? 'active' : 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    allUsers.push(newUser);
+    localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
+
+    // Call mockLogin to set active session
+    mockLogin(email, googleSelectedRole, displayName);
+    
+    // Clear state and navigate
+    setGooglePendingUser(null);
+    setGoogleSelectedRole('user');
+    setGooglePhone('');
+    setGoogleAddress('');
+    
+    if (newUser.status === 'pending') {
+      alert("Registration pending admin approval!");
+    }
+    navigate('/dashboard');
   };
 
   const handleMobileSubmit = (e: React.FormEvent) => {
@@ -109,7 +180,63 @@ const Login: React.FC = () => {
   return (
     <div style={{ background: 'var(--color-light-gray)', minHeight: '80vh', padding: '60px 0', display: 'flex', alignItems: 'center' }}>
       <div className="form-container">
-        {isForgotPassword ? (
+        {googlePendingUser ? (
+          <div>
+            <h2 style={{ textAlign: 'center', color: 'var(--color-primary)', marginBottom: '10px' }}>Complete Registration</h2>
+            <p style={{ textAlign: 'center', color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '25px' }}>
+              Welcome <strong>{googlePendingUser.displayName}</strong>! Please choose your role and enter your details to complete your trust profile.
+            </p>
+
+            <form onSubmit={handleGoogleCompleteSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="form-group">
+                <label className="form-label">Registration Type (Role)</label>
+                <select
+                  value={googleSelectedRole}
+                  onChange={(e) => setGoogleSelectedRole(e.target.value)}
+                  className="form-control form-select"
+                  style={{ background: 'rgba(10, 60, 140, 0.05)', fontWeight: 600 }}
+                  required
+                >
+                  {rolesList.map((r) => (
+                    <option key={r.code} value={r.code}>{r.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  placeholder="10-digit mobile number"
+                  value={googlePhone}
+                  onChange={(e) => setGooglePhone(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">City / Location</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. Agra, Uttar Pradesh"
+                  value={googleAddress}
+                  onChange={(e) => setGoogleAddress(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn btn-secondary" style={{ width: '100%', marginTop: '10px' }}>
+                Complete Setup & Enter Dashboard
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '15px' }}>
+                <a href="#" onClick={(e) => { e.preventDefault(); setGooglePendingUser(null); }} style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600 }}>Cancel</a>
+              </div>
+            </form>
+          </div>
+        ) : isForgotPassword ? (
           <div>
             <h2 style={{ textAlign: 'center', color: 'var(--color-primary)', marginBottom: '10px' }}>Reset Password</h2>
             <p style={{ textAlign: 'center', color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '25px' }}>
