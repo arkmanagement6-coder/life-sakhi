@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { 
   Users, ShoppingBag, DollarSign, ClipboardList, 
   FileText, Download, Calendar, Activity, 
@@ -117,15 +117,77 @@ const Dashboard: React.FC = () => {
   // Admin user list state
   const [allUsers, setAllUsers] = useState<any[]>([]);
 
-  const loadAllUsers = () => {
-    const raw = localStorage.getItem('life_sakhi_all_users');
-    if (raw) {
-      setAllUsers(JSON.parse(raw));
+  const loadAllUsers = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const usersList: any[] = [];
+      querySnapshot.forEach((doc) => {
+        usersList.push({ uid: doc.id, ...doc.data() });
+      });
+      setAllUsers(usersList);
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(usersList));
+    } catch (err) {
+      console.warn("Failed to fetch users from Firestore, fallback to local storage:", err);
+      const raw = localStorage.getItem('life_sakhi_all_users');
+      if (raw) {
+        setAllUsers(JSON.parse(raw));
+      }
+    }
+  };
+
+  const loadCandidates = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "candidates"));
+      const cList: Candidate[] = [];
+      querySnapshot.forEach((doc) => {
+        cList.push({ id: doc.id, ...doc.data() } as Candidate);
+      });
+      if (cList.length > 0) {
+        setCandidates(cList);
+        localStorage.setItem('life_sakhi_candidates', JSON.stringify(cList));
+      }
+    } catch (err) {
+      console.warn("Failed to fetch candidates from Firestore, fallback to local storage:", err);
+    }
+  };
+
+  const loadOrders = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "orders"));
+      const oList: any[] = [];
+      querySnapshot.forEach((doc) => {
+        oList.push({ id: doc.id, ...doc.data() });
+      });
+      if (oList.length > 0) {
+        setOrders(oList);
+        localStorage.setItem('life_sakhi_orders', JSON.stringify(oList));
+      }
+    } catch (err) {
+      console.warn("Failed to fetch orders from Firestore, fallback to local storage:", err);
+    }
+  };
+
+  const loadPermissions = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "permissions"));
+      const pObj: any = {};
+      querySnapshot.forEach((doc) => {
+        pObj[doc.id] = doc.data();
+      });
+      if (Object.keys(pObj).length > 0) {
+        setPermissions(pObj);
+        localStorage.setItem('life_sakhi_role_permissions', JSON.stringify(pObj));
+      }
+    } catch (err) {
+      console.warn("Failed to fetch permissions from Firestore:", err);
     }
   };
 
   React.useEffect(() => {
     loadAllUsers();
+    loadCandidates();
+    loadOrders();
+    loadPermissions();
   }, []);
 
   React.useEffect(() => {
@@ -357,7 +419,7 @@ const Dashboard: React.FC = () => {
     setTimeout(() => setFormSubmitted(false), 3000);
   };
 
-  const handleOrderSubmit = (e: React.FormEvent) => {
+  const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const qty = parseInt(sakhiOrder.quantity) || 50;
     const amt = qty * 25;
@@ -390,6 +452,12 @@ const Dashboard: React.FC = () => {
     const updatedOrders = [newOrder, ...orders];
     setOrders(updatedOrders);
     localStorage.setItem('life_sakhi_orders', JSON.stringify(updatedOrders));
+
+    try {
+      await setDoc(doc(db, "orders", newOrder.id), newOrder);
+    } catch (err) {
+      console.warn("Failed to save order in Firestore:", err);
+    }
 
     // Reset fields
     setSakhiOrder({ quantity: '50', block: '', notes: '' });
@@ -858,7 +926,7 @@ const Dashboard: React.FC = () => {
       }
     };
 
-    const handleAddCandidate = (e: React.FormEvent) => {
+    const handleAddCandidate = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!candName || !candPhone || !candEmail) {
         alert('Please fill out all required fields.');
@@ -925,6 +993,14 @@ const Dashboard: React.FC = () => {
 
       allUsers.push(newPendingUser);
       localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
+
+      try {
+        await setDoc(doc(db, "candidates", newCand.id), newCand);
+        await setDoc(doc(db, "users", newPendingUser.uid), newPendingUser);
+      } catch (err) {
+        console.warn("Failed to save candidate / user in Firestore:", err);
+      }
+
       loadAllUsers();
 
       // Reset form fields
@@ -940,16 +1016,26 @@ const Dashboard: React.FC = () => {
       alert('Candidate profile registered successfully under "Pending Approvals"!');
     };
 
-    const handleUpdateStatus = (id: string, newStatus: 'applied' | 'interview_scheduled' | 'hired' | 'rejected') => {
+    const handleUpdateStatus = async (id: string, newStatus: 'applied' | 'interview_scheduled' | 'hired' | 'rejected') => {
       const updated = candidates.map(c => c.id === id ? { ...c, status: newStatus } : c);
       setCandidates(updated);
       localStorage.setItem('life_sakhi_candidates', JSON.stringify(updated));
+      try {
+        await setDoc(doc(db, "candidates", id), { status: newStatus }, { merge: true });
+      } catch (err) {
+        console.warn("Failed to update candidate status in Firestore:", err);
+      }
     };
 
-    const toggleMemberStatus = (uid: string, currentStatus: string) => {
+    const toggleMemberStatus = async (uid: string, currentStatus: string) => {
       const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
       const updatedUsers = allUsers.map(u => u.uid === uid ? { ...u, status: newStatus } : u);
       localStorage.setItem('life_sakhi_all_users', JSON.stringify(updatedUsers));
+      try {
+        await setDoc(doc(db, "users", uid), { status: newStatus }, { merge: true });
+      } catch (err) {
+        console.warn("Failed to toggle member status in Firestore:", err);
+      }
       loadAllUsers();
       alert(`User status changed to ${newStatus === 'active' ? 'ACTIVE (Unlocked)' : 'INACTIVE (Suspended / Blocked)'}`);
     };
@@ -1848,10 +1934,15 @@ const Dashboard: React.FC = () => {
                                 type="button"
                                 className="btn btn-secondary" 
                                 style={{ padding: '4px 10px', fontSize: '0.75rem' }}
-                                onClick={() => {
+                                onClick={async () => {
                                   const updated = orders.map(order => order.id === o.id ? { ...order, status: 'processing', paymentStatus: 'success' } : order);
                                   setOrders(updated);
                                   localStorage.setItem('life_sakhi_orders', JSON.stringify(updated));
+                                  try {
+                                    await setDoc(doc(db, "orders", o.id), { status: 'processing', paymentStatus: 'success' }, { merge: true });
+                                  } catch (err) {
+                                    console.warn("Failed to update order in Firestore:", err);
+                                  }
                                   alert('Payment Verified! Order moved to processing & dispatch queue.');
                                 }}
                               >
@@ -1872,7 +1963,7 @@ const Dashboard: React.FC = () => {
                                   type="button"
                                   className="btn btn-primary" 
                                   style={{ padding: '4px 10px', fontSize: '0.75rem' }}
-                                  onClick={() => {
+                                  onClick={async () => {
                                     if (!inputTrackingId) {
                                       alert('Please enter a tracking ID first!');
                                       return;
@@ -1880,6 +1971,11 @@ const Dashboard: React.FC = () => {
                                     const updated = orders.map(order => order.id === o.id ? { ...order, status: 'shipped', trackingId: inputTrackingId } : order);
                                     setOrders(updated);
                                     localStorage.setItem('life_sakhi_orders', JSON.stringify(updated));
+                                    try {
+                                      await setDoc(doc(db, "orders", o.id), { status: 'shipped', trackingId: inputTrackingId }, { merge: true });
+                                    } catch (err) {
+                                      console.warn("Failed to save tracking ID in Firestore:", err);
+                                    }
                                     setInputTrackingId('');
                                     alert(`Order ${o.id} marked shipped via DTDC with Tracking ID: ${inputTrackingId}`);
                                   }}
@@ -1896,10 +1992,15 @@ const Dashboard: React.FC = () => {
                                   type="button"
                                   className="btn btn-secondary" 
                                   style={{ padding: '4px 10px', fontSize: '0.75rem', background: 'var(--color-green)' }}
-                                  onClick={() => {
+                                  onClick={async () => {
                                     const updated = orders.map(order => order.id === o.id ? { ...order, status: 'delivered' } : order);
                                     setOrders(updated);
                                     localStorage.setItem('life_sakhi_orders', JSON.stringify(updated));
+                                    try {
+                                      await setDoc(doc(db, "orders", o.id), { status: 'delivered' }, { merge: true });
+                                    } catch (err) {
+                                      console.warn("Failed to update delivery status in Firestore:", err);
+                                    }
                                     alert(`Order ${o.id} marked successfully delivered!`);
                                   }}
                                 >
@@ -2015,7 +2116,17 @@ const Dashboard: React.FC = () => {
                   type="button" 
                   className="btn btn-primary" 
                   style={{ marginTop: '10px', padding: '10px' }}
-                  onClick={() => alert('Permissions config saved successfully!')}
+                  onClick={async () => {
+                    try {
+                      await setDoc(doc(db, "permissions", "state_coordinator"), permissions.state_coordinator || {}, { merge: true });
+                      await setDoc(doc(db, "permissions", "hiring_partner"), permissions.hiring_partner || {}, { merge: true });
+                      await setDoc(doc(db, "permissions", "delivery_staff"), permissions.delivery_staff || {}, { merge: true });
+                      alert('Permissions config saved successfully to Firebase Firestore!');
+                    } catch (err) {
+                      console.warn("Failed to save permissions to Firestore:", err);
+                      alert('Permissions saved locally, but database sync failed.');
+                    }
+                  }}
                 >
                   Save Access Settings
                 </button>
@@ -2072,14 +2183,14 @@ const Dashboard: React.FC = () => {
                           <td style={{ padding: '12px', textAlign: 'center' }}>
                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                               <button 
-                                onClick={() => { approveUserStatus(u.uid, 'active'); loadAllUsers(); }} 
+                                onClick={async () => { await approveUserStatus(u.uid, 'active'); await loadAllUsers(); }} 
                                 className="btn btn-primary" 
                                 style={{ padding: '4px 10px', fontSize: '0.75rem' }}
                               >
                                 Approve
                               </button>
                               <button 
-                                onClick={() => { approveUserStatus(u.uid, 'rejected'); loadAllUsers(); }} 
+                                onClick={async () => { await approveUserStatus(u.uid, 'rejected'); await loadAllUsers(); }} 
                                 className="btn btn-outline" 
                                 style={{ padding: '4px 10px', fontSize: '0.75rem', borderColor: '#ff4d4d', color: '#ff4d4d' }}
                               >
