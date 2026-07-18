@@ -60,6 +60,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           updatedAt: new Date().toISOString()
         },
         {
+          uid: "mock-uid-hiring-partner-demo",
+          email: "partner@gmail.com",
+          displayName: "Demo Hiring Partner",
+          phone: "+91 98765 00000",
+          role: "hiring_partner",
+          status: "active",
+          address: "Agra HQ",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
           uid: "mock-uid-ravi",
           email: "ravi@example.com",
           displayName: "Ravi Kumar",
@@ -91,6 +102,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       ];
       localStorage.setItem('life_sakhi_all_users', JSON.stringify(initialUsers));
+      
+      // Also upload seeded profiles to Firestore database
+      initialUsers.forEach(async (u) => {
+        try {
+          await setDoc(doc(db, "users", u.uid), u, { merge: true });
+        } catch (err) {
+          console.warn("Firestore seed user failed:", err);
+        }
+      });
     }
   }, []);
 
