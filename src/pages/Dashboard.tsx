@@ -515,10 +515,16 @@ const Dashboard: React.FC = () => {
       }
       case 'hiring_partner': {
         const items = [];
-        if (permissions.hiring_partner?.recruitment_hub) {
+        if (permissions.hiring_partner?.recruitment_hub !== false) {
           items.push({ id: 'recruitment_hub', label: 'Recruitment Hub', icon: <Users size={18} /> });
         }
-        return [...common, ...items];
+        return [
+          ...common,
+          ...items,
+          { id: 'place_order', label: 'Order Pad Stock', icon: <ShoppingBag size={18} /> },
+          { id: 'my_orders', label: 'My Stock Orders', icon: <FileText size={18} /> },
+          { id: 'sales_log', label: 'Log Daily Sales', icon: <ClipboardList size={18} /> }
+        ];
       }
       case 'donor':
       case 'csr_partner':
