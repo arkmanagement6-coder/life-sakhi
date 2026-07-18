@@ -41,6 +41,9 @@ const Dashboard: React.FC = () => {
     position: string;
     source: string;
     status: 'applied' | 'interview_scheduled' | 'hired' | 'rejected';
+    passportPhotoUrl?: string;
+    aadhaarFrontUrl?: string;
+    aadhaarBackUrl?: string;
     createdAt: string;
   }
 
@@ -70,6 +73,10 @@ const Dashboard: React.FC = () => {
   const [candAadhaar, setCandAadhaar] = useState('');
   const [candPosition, setCandPosition] = useState('Volunteer Advocate');
   const [candSource, setCandSource] = useState('Self Sourced');
+  const [candPassportPhoto, setCandPassportPhoto] = useState('');
+  const [candAadhaarFront, setCandAadhaarFront] = useState('');
+  const [candAadhaarBack, setCandAadhaarBack] = useState('');
+  const [viewingCandidateKyc, setViewingCandidateKyc] = useState<Candidate | null>(null);
 
   // Mobile verification states
   const [isVerifyingMobile, setIsVerifyingMobile] = useState(false);
@@ -933,6 +940,38 @@ const Dashboard: React.FC = () => {
       }
     };
 
+    const compressImageFile = (file: File, callback: (base64: string) => void) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.src = objectUrl;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 400;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+          callback(compressedBase64);
+        }
+        URL.revokeObjectURL(objectUrl);
+      };
+    };
+
     const handleAddCandidate = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!candName || !candPhone || !candEmail) {
@@ -972,6 +1011,9 @@ const Dashboard: React.FC = () => {
         position: candPosition,
         source: candSource,
         status: 'applied',
+        passportPhotoUrl: candPassportPhoto || undefined,
+        aadhaarFrontUrl: candAadhaarFront || undefined,
+        aadhaarBackUrl: candAadhaarBack || undefined,
         createdAt: new Date().toISOString()
       };
 
@@ -1018,6 +1060,9 @@ const Dashboard: React.FC = () => {
       setCandAddress('');
       setCandPincode('');
       setCandAadhaar('');
+      setCandPassportPhoto('');
+      setCandAadhaarFront('');
+      setCandAadhaarBack('');
       setIsMobileVerified(false);
 
       alert('Candidate profile registered successfully under "Pending Approvals"!');
@@ -1207,11 +1252,24 @@ const Dashboard: React.FC = () => {
                         <tr key={c.id} style={{ borderBottom: '1px solid #eee' }}>
                           <td style={{ padding: '12px 15px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(140, 198, 62, 0.1)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                              <div 
+                                style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(140, 198, 62, 0.1)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                                onClick={() => setViewingCandidateKyc(c)}
+                                title="Click to view KYC Profile"
+                              >
                                 {initials}
                               </div>
                               <div>
-                                <div style={{ fontWeight: 700, color: 'var(--color-dark)', fontSize: '0.9rem' }}>{c.name}</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                  <div style={{ fontWeight: 700, color: 'var(--color-dark)', fontSize: '0.9rem' }}>{c.name}</div>
+                                  <button 
+                                    type="button"
+                                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-primary)', cursor: 'pointer', fontSize: '0.72rem', textDecoration: 'underline' }}
+                                    onClick={() => setViewingCandidateKyc(c)}
+                                  >
+                                    (KYC)
+                                  </button>
+                                </div>
                                 <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Sourced: {new Date(c.createdAt).toLocaleDateString()}</div>
                               </div>
                             </div>
@@ -1241,6 +1299,14 @@ const Dashboard: React.FC = () => {
                           </td>
                           <td style={{ padding: '12px 15px', textAlign: 'center' }}>
                             <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                              <button
+                                type="button"
+                                className="btn btn-outline"
+                                style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: '#4a5568', color: '#4a5568', background: 'white' }}
+                                onClick={() => setViewingCandidateKyc(c)}
+                              >
+                                View KYC
+                              </button>
                               {c.status === 'applied' && (
                                 <button
                                   type="button"
@@ -1270,9 +1336,6 @@ const Dashboard: React.FC = () => {
                                 >
                                   Reject
                                 </button>
-                              )}
-                              {(c.status === 'hired' || c.status === 'rejected') && (
-                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>Completed</span>
                               )}
                             </div>
                           </td>
@@ -1452,6 +1515,68 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Passport Photo (For ID Card)</label>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          required
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) compressImageFile(file, setCandPassportPhoto);
+                          }}
+                          style={{ fontSize: '0.75rem', width: '100%' }}
+                        />
+                        {candPassportPhoto && (
+                          <div style={{ marginTop: '5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <img src={candPassportPhoto} alt="Passport Preview" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #ddd' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-green)' }}>Loaded ✓</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Aadhaar Front (ID Proof)</label>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          required
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) compressImageFile(file, setCandAadhaarFront);
+                          }}
+                          style={{ fontSize: '0.75rem', width: '100%' }}
+                        />
+                        {candAadhaarFront && (
+                          <div style={{ marginTop: '5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <img src={candAadhaarFront} alt="Aadhaar Front Preview" style={{ width: '50px', height: '32px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #ddd' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-green)' }}>Loaded ✓</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Aadhaar Back (Address Proof)</label>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          required
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) compressImageFile(file, setCandAadhaarBack);
+                          }}
+                          style={{ fontSize: '0.75rem', width: '100%' }}
+                        />
+                        {candAadhaarBack && (
+                          <div style={{ marginTop: '5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <img src={candAadhaarBack} alt="Aadhaar Back Preview" style={{ width: '50px', height: '32px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #ddd' }} />
+                            <span style={{ fontSize: '0.65rem', color: 'var(--color-green)' }}>Loaded ✓</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="form-group" style={{ margin: 0 }}>
                       <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Physical Address</label>
                       <textarea
@@ -1469,6 +1594,84 @@ const Dashboard: React.FC = () => {
                       <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowAddCandidateModal(false)}>Cancel</button>
                     </div>
                   </form>
+                </div>
+              </div>
+            )}
+
+            {/* Viewing Candidate profile & KYC Details Modal */}
+            {viewingCandidateKyc && (
+              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+                <div style={{ background: 'white', padding: '30px', borderRadius: '12px', maxWidth: '650px', width: '90%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.15)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
+                    <h4 style={{ color: 'var(--color-primary)', fontWeight: 800, margin: 0 }}>Candidate Profile & KYC Dossier</h4>
+                    <button 
+                      type="button" 
+                      onClick={() => setViewingCandidateKyc(null)}
+                      style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--color-muted)' }}
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '25px', alignItems: 'start', marginBottom: '20px' }}>
+                    {/* Left: Passport photo and avatar details */}
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ width: '130px', height: '130px', borderRadius: '8px', border: '1px solid #ddd', margin: '0 auto 15px auto', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        {viewingCandidateKyc.passportPhotoUrl ? (
+                          <img src={viewingCandidateKyc.passportPhotoUrl} alt="Passport Photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ color: 'var(--color-muted)', fontSize: '0.75rem', padding: '10px' }}>No Photo Uploaded</div>
+                        )}
+                      </div>
+                      <span style={{ fontSize: '0.75rem', padding: '3px 8px', background: '#f0f4f8', color: '#4a5568', borderRadius: '4px', fontWeight: 600 }}>
+                        {viewingCandidateKyc.position}
+                      </span>
+                    </div>
+
+                    {/* Right: Personal details */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>{viewingCandidateKyc.name}</div>
+                      <div style={{ fontSize: '0.85rem' }}><strong>Email:</strong> {viewingCandidateKyc.email}</div>
+                      <div style={{ fontSize: '0.85rem' }}><strong>Phone:</strong> +91 {viewingCandidateKyc.phone}</div>
+                      <div style={{ fontSize: '0.85rem' }}><strong>Aadhaar Number:</strong> {viewingCandidateKyc.aadhaar || 'N/A'}</div>
+                      <div style={{ fontSize: '0.85rem' }}><strong>Sourcing Method:</strong> {viewingCandidateKyc.source}</div>
+                      <div style={{ fontSize: '0.85rem' }}><strong>Full Address:</strong> {viewingCandidateKyc.address}, {viewingCandidateKyc.city}, {viewingCandidateKyc.district}, {viewingCandidateKyc.state} - {viewingCandidateKyc.pincode}</div>
+                    </div>
+                  </div>
+
+                  <hr style={{ border: '0', borderTop: '1px solid #eee', margin: '20px 0' }} />
+
+                  {/* Documents Section */}
+                  <div>
+                    <h5 style={{ fontWeight: 800, color: 'var(--color-primary)', marginBottom: '15px' }}>Identity & Address Proof Verification</h5>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 700, display: 'block', marginBottom: '8px' }}>Aadhaar Front (Identity Proof)</label>
+                        <div style={{ height: '150px', background: '#f8f9fa', border: '1px dashed #ccc', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                          {viewingCandidateKyc.aadhaarFrontUrl ? (
+                            <img src={viewingCandidateKyc.aadhaarFrontUrl} alt="Aadhaar Front" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          ) : (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Not uploaded</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 700, display: 'block', marginBottom: '8px' }}>Aadhaar Back (Address Proof)</label>
+                        <div style={{ height: '150px', background: '#f8f9fa', border: '1px dashed #ccc', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                          {viewingCandidateKyc.aadhaarBackUrl ? (
+                            <img src={viewingCandidateKyc.aadhaarBackUrl} alt="Aadhaar Back" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          ) : (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Not uploaded</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '15px', marginTop: '25px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                    <button type="button" className="btn btn-primary" style={{ flex: 1 }} onClick={() => setViewingCandidateKyc(null)}>Close Profile Dossier</button>
+                  </div>
                 </div>
               </div>
             )}
