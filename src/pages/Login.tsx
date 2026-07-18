@@ -38,6 +38,7 @@ const Login: React.FC = () => {
     { code: 'csr_partner', name: 'CSR Partner' },
     { code: 'corporate_partner', name: 'Corporate Partner' },
     { code: 'hiring_partner', name: 'Hiring Partner' },
+    { code: 'delivery_staff', name: 'Delivery Department Staff' },
     { code: 'hospital', name: 'Hospital Partner' },
     { code: 'school', name: 'School Partner' },
     { code: 'ngo_partner', name: 'NGO Partner' },

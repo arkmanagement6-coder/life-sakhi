@@ -7,7 +7,7 @@ import {
   Users, ShoppingBag, DollarSign, ClipboardList, 
   FileText, Download, Calendar, Activity, 
   Heart, LogOut, Check, X, Menu, Home, User, Landmark, 
-  Sparkles, CheckCircle2
+  Sparkles, CheckCircle2, Truck, Shield
 } from 'lucide-react';
 import statesData from '../utils/states-and-districts.json';
 
@@ -29,10 +29,16 @@ const Dashboard: React.FC = () => {
   interface Candidate {
     id: string;
     name: string;
-    position: string;
+    email: string;
     phone: string;
     state: string;
     district: string;
+    city: string;
+    address: string;
+    pincode: string;
+    aadhaar: string;
+    recruiterEmail: string;
+    position: string;
     source: string;
     status: 'applied' | 'interview_scheduled' | 'hired' | 'rejected';
     createdAt: string;
@@ -43,10 +49,10 @@ const Dashboard: React.FC = () => {
     const raw = localStorage.getItem('life_sakhi_candidates');
     if (raw) return JSON.parse(raw);
     const defaultCandidates: Candidate[] = [
-      { id: '1', name: 'Ramesh Yadav', position: 'Volunteer Advocate', phone: '9876543210', state: 'Uttar Pradesh', district: 'Agra', source: 'NGO Allocated', status: 'applied', createdAt: new Date().toISOString() },
-      { id: '2', name: 'Sunita Patel', position: 'Block Coordinator', phone: '9988776655', state: 'Uttar Pradesh', district: 'Mathura', source: 'Self Sourced', status: 'interview_scheduled', createdAt: new Date().toISOString() },
-      { id: '3', name: 'Karan Singh', position: 'Volunteer Advocate', phone: '8877665544', state: 'Maharashtra', district: 'Pune', source: 'Self Sourced', status: 'hired', createdAt: new Date().toISOString() },
-      { id: '4', name: 'Priya Sharma', position: 'Life Sakhi Distributor', phone: '7766554433', state: 'Delhi', district: 'New Delhi', source: 'NGO Allocated', status: 'rejected', createdAt: new Date().toISOString() }
+      { id: '1', name: 'Ramesh Yadav', email: 'ramesh@gmail.com', phone: '9876543210', state: 'Uttar Pradesh', district: 'Agra', city: 'Agra', address: '12, Sanjay Place', pincode: '282002', aadhaar: '123456789012', recruiterEmail: 'admin@gmail.com', position: 'Volunteer Advocate', source: 'NGO Allocated', status: 'applied', createdAt: new Date().toISOString() },
+      { id: '2', name: 'Sunita Patel', email: 'sunita@gmail.com', phone: '9988776655', state: 'Uttar Pradesh', district: 'Mathura', city: 'Mathura', address: '45, Krishna Nagar', pincode: '281001', aadhaar: '234567890123', recruiterEmail: 'admin@gmail.com', position: 'Block Coordinator', source: 'Self Sourced', status: 'interview_scheduled', createdAt: new Date().toISOString() },
+      { id: '3', name: 'Karan Singh', email: 'karan@gmail.com', phone: '8877665544', state: 'Maharashtra', district: 'Pune', city: 'Pune', address: '78, MG Road', pincode: '411001', aadhaar: '345678901234', recruiterEmail: 'admin@gmail.com', position: 'Volunteer Advocate', source: 'Self Sourced', status: 'hired', createdAt: new Date().toISOString() },
+      { id: '4', name: 'Priya Sharma', email: 'priya@gmail.com', phone: '7766554433', state: 'Delhi', district: 'New Delhi', city: 'New Delhi', address: '90, Connaught Place', pincode: '110001', aadhaar: '456789012345', recruiterEmail: 'admin@gmail.com', position: 'Life Sakhi Distributor', source: 'NGO Allocated', status: 'rejected', createdAt: new Date().toISOString() }
     ];
     localStorage.setItem('life_sakhi_candidates', JSON.stringify(defaultCandidates));
     return defaultCandidates;
@@ -54,17 +60,59 @@ const Dashboard: React.FC = () => {
 
   // Recruitment Add Candidate states
   const [candName, setCandName] = useState('');
-  const [candPosition, setCandPosition] = useState('Volunteer Advocate');
+  const [candEmail, setCandEmail] = useState('');
   const [candPhone, setCandPhone] = useState('');
   const [candState, setCandState] = useState('Uttar Pradesh');
   const [candDistrict, setCandDistrict] = useState('Agra');
+  const [candCity, setCandCity] = useState('');
+  const [candAddress, setCandAddress] = useState('');
+  const [candPincode, setCandPincode] = useState('');
+  const [candAadhaar, setCandAadhaar] = useState('');
+  const [candPosition, setCandPosition] = useState('Volunteer Advocate');
   const [candSource, setCandSource] = useState('Self Sourced');
+
+  // Mobile verification states
+  const [isVerifyingMobile, setIsVerifyingMobile] = useState(false);
+  const [mobileOtp, setMobileOtp] = useState('');
+  const [isMobileVerified, setIsMobileVerified] = useState(false);
+  const [recruitmentSubTab, setRecruitmentSubTab] = useState<'applicants' | 'my_team'>('applicants');
 
   // Recruitment Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [filterState, setFilterState] = useState('');
   const [filterDistrict, setFilterDistrict] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+
+  // Order & Shipment Management States
+  const [orders, setOrders] = useState<any[]>(() => {
+    const raw = localStorage.getItem('life_sakhi_orders');
+    if (raw) return JSON.parse(raw);
+    const defaultOrders = [
+      { id: 'ord-101', userEmail: 'sunita@gmail.com', userName: 'Sunita Patel', role: 'women_distributor', quantity: 50, amount: 1250, block: 'Achhnera', notes: 'Urgent medical camp distribution.', paymentMode: 'prepaid', paymentStatus: 'success', status: 'shipped', trackingId: 'DTDC765432109', createdAt: new Date().toISOString() },
+      { id: 'ord-102', userEmail: 'karan@gmail.com', userName: 'Karan Singh', role: 'women_distributor', quantity: 100, amount: 2300, block: 'Fatehabad', notes: 'School health drive stock.', paymentMode: 'cod', paymentStatus: 'pending', status: 'pending_approval', createdAt: new Date().toISOString() }
+    ];
+    localStorage.setItem('life_sakhi_orders', JSON.stringify(defaultOrders));
+    return defaultOrders;
+  });
+
+  const [paymentMode, setPaymentMode] = useState<'prepaid' | 'cod'>('prepaid');
+  const [paymentProof, setPaymentProof] = useState<string>('');
+  const [inputTrackingId, setInputTrackingId] = useState('');
+
+  // Role Permissions Toggles configuration (Admin customized)
+  const [permissions, setPermissions] = useState<any>(() => {
+    const raw = localStorage.getItem('life_sakhi_role_permissions');
+    if (raw) return JSON.parse(raw);
+    const defaultPermissions = {
+      admin: { approve_registrations: true, all_coordinators: true, shipment_desk: true },
+      delivery_staff: { approve_registrations: false, all_coordinators: false, shipment_desk: true },
+      state_coordinator: { schedule_camps: true, applicant_review: true, recruitment_hub: true },
+      district_coordinator: { schedule_camps: true, applicant_review: true, recruitment_hub: true },
+      hiring_partner: { recruitment_hub: true }
+    };
+    localStorage.setItem('life_sakhi_role_permissions', JSON.stringify(defaultPermissions));
+    return defaultPermissions;
+  });
 
   // Admin user list state
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -247,6 +295,8 @@ const Dashboard: React.FC = () => {
         return 'Corporate Partner';
       case 'hiring_partner':
         return 'Hiring Partner';
+      case 'delivery_staff':
+        return 'Delivery Department Staff';
       case 'hospital':
         return 'Hospital Partner';
       case 'school':
@@ -307,7 +357,47 @@ const Dashboard: React.FC = () => {
     setTimeout(() => setFormSubmitted(false), 3000);
   };
 
-  // Define sidebar menu options based on role
+  const handleOrderSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const qty = parseInt(sakhiOrder.quantity) || 50;
+    const amt = qty * 25;
+    if (amt < 1000) {
+      alert('Minimum order value is ₹1,000 (at least 40 packets).');
+      return;
+    }
+
+    if (paymentMode === 'prepaid' && !paymentProof) {
+      alert('Please upload a screenshot of your payment receipt.');
+      return;
+    }
+
+    const newOrder = {
+      id: 'ORD-' + Math.random().toString(36).substring(7).toUpperCase(),
+      userEmail: userProfile?.email || '',
+      userName: userProfile?.displayName || 'Distributor',
+      role: userProfile?.role || 'women_distributor',
+      quantity: qty,
+      amount: amt,
+      block: sakhiOrder.block,
+      notes: sakhiOrder.notes || 'No extra notes.',
+      paymentMode: paymentMode,
+      paymentProofUrl: paymentProof || undefined,
+      paymentStatus: paymentMode === 'prepaid' ? 'success' : 'pending',
+      status: 'pending_approval',
+      createdAt: new Date().toISOString()
+    };
+
+    const updatedOrders = [newOrder, ...orders];
+    setOrders(updatedOrders);
+    localStorage.setItem('life_sakhi_orders', JSON.stringify(updatedOrders));
+
+    // Reset fields
+    setSakhiOrder({ quantity: '50', block: '', notes: '' });
+    setPaymentProof('');
+    setPaymentMode('prepaid');
+    alert('Stock order placed successfully! Check "My Stock Orders" tab to track DTDC dispatch details.');
+  };
+
   const getSidebarMenuItems = () => {
     const common = [
       { id: 'overview', label: 'Overview', icon: <Activity size={18} /> }
@@ -318,12 +408,20 @@ const Dashboard: React.FC = () => {
         return [
           ...common,
           { id: 'approve_registrations', label: 'Approve Registrations', icon: <CheckCircle2 size={18} /> },
-          { id: 'all_coordinators', label: 'Team Directory', icon: <Users size={18} /> }
+          { id: 'all_coordinators', label: 'Team Directory', icon: <Users size={18} /> },
+          { id: 'shipment_desk', label: 'Shipments Desk', icon: <Truck size={18} /> },
+          { id: 'admin_permissions', label: 'Access Rules', icon: <Shield size={18} /> }
+        ];
+      case 'delivery_staff':
+        return [
+          ...common,
+          { id: 'shipment_desk', label: 'Shipments Desk', icon: <Truck size={18} /> }
         ];
       case 'women_distributor':
         return [
           ...common,
           { id: 'place_order', label: 'Order Pad Stock', icon: <ShoppingBag size={18} /> },
+          { id: 'my_orders', label: 'My Stock Orders', icon: <FileText size={18} /> },
           { id: 'sales_log', label: 'Log Daily Sales', icon: <ClipboardList size={18} /> },
           { id: 'sales_ledger', label: 'Earnings Ledger', icon: <DollarSign size={18} /> }
         ];
@@ -334,18 +432,26 @@ const Dashboard: React.FC = () => {
           { id: 'sakhi_inventory', label: 'Sakhi Directory', icon: <Users size={18} /> }
         ];
       case 'district_coordinator':
-      case 'state_coordinator':
-        return [
-          ...common,
-          { id: 'schedule_camps', label: 'Register Camps', icon: <Calendar size={18} /> },
-          { id: 'applicant_review', label: 'Review Applicants', icon: <User size={18} /> },
-          { id: 'recruitment_hub', label: 'Recruitment Hub', icon: <Users size={18} /> }
-        ];
-      case 'hiring_partner':
-        return [
-          ...common,
-          { id: 'recruitment_hub', label: 'Recruitment Hub', icon: <Users size={18} /> }
-        ];
+      case 'state_coordinator': {
+        const items = [];
+        if (permissions.state_coordinator?.schedule_camps) {
+          items.push({ id: 'schedule_camps', label: 'Register Camps', icon: <Calendar size={18} /> });
+        }
+        if (permissions.state_coordinator?.applicant_review) {
+          items.push({ id: 'applicant_review', label: 'Review Applicants', icon: <User size={18} /> });
+        }
+        if (permissions.state_coordinator?.recruitment_hub) {
+          items.push({ id: 'recruitment_hub', label: 'Recruitment Hub', icon: <Users size={18} /> });
+        }
+        return [...common, ...items];
+      }
+      case 'hiring_partner': {
+        const items = [];
+        if (permissions.hiring_partner?.recruitment_hub) {
+          items.push({ id: 'recruitment_hub', label: 'Recruitment Hub', icon: <Users size={18} /> });
+        }
+        return [...common, ...items];
+      }
       case 'donor':
       case 'csr_partner':
       case 'corporate_partner':
@@ -709,6 +815,7 @@ const Dashboard: React.FC = () => {
     const filterStateObj = statesData.states.find((s: any) => s.state === filterState);
     const filterDistrictOptions = filterStateObj ? filterStateObj.districts : [];
 
+    // Filter candidate list for Applicants Database
     const filteredCandidates = candidates.filter(c => {
       const matchSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
       const matchState = filterState ? c.state === filterState : true;
@@ -717,29 +824,120 @@ const Dashboard: React.FC = () => {
       return matchSearch && matchState && matchDistrict && matchStatus;
     });
 
+    // Filter team list for Hiring Partner's team
+    const myTeamMembers = allUsers.filter(u => u.recruiterEmail && u.recruiterEmail.toLowerCase() === userProfile?.email?.toLowerCase());
+
+    const triggerSendOtp = () => {
+      if (!candPhone || candPhone.length !== 10) {
+        alert('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+      
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      const isDuplicateUser = allUsers.some((u: any) => u.phone && u.phone.replace(/\s+/g, '').includes(candPhone));
+      const isDuplicateCandidate = candidates.some((c: any) => c.phone.includes(candPhone));
+
+      if (isDuplicateUser || isDuplicateCandidate) {
+        alert('Duplicate Entry Error: A team member or candidate is already registered with this mobile number.');
+        return;
+      }
+
+      setIsVerifyingMobile(true);
+      alert('Simulated Verification SMS Sent!\nUse verification code "123456" to verify the mobile number.');
+    };
+
+    const verifyOtp = () => {
+      if (mobileOtp === '123456') {
+        setIsMobileVerified(true);
+        setIsVerifyingMobile(false);
+        setMobileOtp('');
+        alert('Mobile number verified successfully!');
+      } else {
+        alert('Invalid OTP code. Please enter "123456" to simulate verification.');
+      }
+    };
+
     const handleAddCandidate = (e: React.FormEvent) => {
       e.preventDefault();
-      if (!candName || !candPhone) return;
+      if (!candName || !candPhone || !candEmail) {
+        alert('Please fill out all required fields.');
+        return;
+      }
+
+      if (!isMobileVerified) {
+        alert('Please verify the candidate\'s mobile number first.');
+        return;
+      }
+
+      // Check duplicates
+      const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+      
+      const isDuplicateEmailUser = allUsers.some((u: any) => u.email.toLowerCase() === candEmail.toLowerCase());
+      const isDuplicateEmailCand = candidates.some((c: any) => c.email.toLowerCase() === candEmail.toLowerCase());
+
+      if (isDuplicateEmailUser || isDuplicateEmailCand) {
+        alert('Duplicate Entry Error: A candidate or user with this email address already exists.');
+        return;
+      }
 
       const newCand: Candidate = {
         id: 'cand-' + Math.random().toString(36).substring(7),
         name: candName,
-        position: candPosition,
+        email: candEmail,
         phone: candPhone,
         state: candState,
         district: candDistrict,
+        city: candCity,
+        address: candAddress,
+        pincode: candPincode,
+        aadhaar: candAadhaar,
+        recruiterEmail: userProfile?.email || 'admin@gmail.com',
+        position: candPosition,
         source: candSource,
         status: 'applied',
         createdAt: new Date().toISOString()
       };
 
+      // Add to candidates list
       const updated = [newCand, ...candidates];
       setCandidates(updated);
       localStorage.setItem('life_sakhi_candidates', JSON.stringify(updated));
 
+      // Also add to allUsers with status 'pending' so Admin can approve!
+      const newPendingUser = {
+        uid: 'user-' + Math.random().toString(36).substring(7),
+        email: candEmail,
+        displayName: candName,
+        phone: candPhone,
+        address: candAddress,
+        role: candPosition === 'Life Sakhi Distributor' ? 'women_distributor' : 
+              candPosition === 'District Coordinator' ? 'district_coordinator' :
+              candPosition === 'Block Coordinator' ? 'block_coordinator' :
+              candPosition === 'State Coordinator' ? 'state_coordinator' :
+              candPosition === 'Clinical Volunteer / Doctor' ? 'doctor' : 'volunteer',
+        status: 'pending',
+        recruiterEmail: userProfile?.email || 'admin@gmail.com',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      allUsers.push(newPendingUser);
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(allUsers));
+      loadAllUsers();
+
+      // Reset form fields
       setCandName('');
+      setCandEmail('');
       setCandPhone('');
-      alert('New Candidate registered successfully!');
+      setCandCity('');
+      setCandAddress('');
+      setCandPincode('');
+      setCandAadhaar('');
+      setIsMobileVerified(false);
+
+      alert('Candidate profile registered successfully under "Pending Approvals"!');
     };
 
     const handleUpdateStatus = (id: string, newStatus: 'applied' | 'interview_scheduled' | 'hired' | 'rejected') => {
@@ -748,259 +946,467 @@ const Dashboard: React.FC = () => {
       localStorage.setItem('life_sakhi_candidates', JSON.stringify(updated));
     };
 
+    const toggleMemberStatus = (uid: string, currentStatus: string) => {
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      const updatedUsers = allUsers.map(u => u.uid === uid ? { ...u, status: newStatus } : u);
+      localStorage.setItem('life_sakhi_all_users', JSON.stringify(updatedUsers));
+      loadAllUsers();
+      alert(`User status changed to ${newStatus === 'active' ? 'ACTIVE (Unlocked)' : 'INACTIVE (Suspended / Blocked)'}`);
+    };
+
     return (
       <div style={{ background: 'white', padding: '30px', borderRadius: 'var(--border-radius-lg)', boxShadow: 'var(--box-shadow-sm)', marginTop: '20px' }}>
-        <h3 style={{ color: 'var(--color-primary)', fontWeight: 800, marginBottom: '5px' }}>Recruitment Hub</h3>
+        <h3 style={{ color: 'var(--color-primary)', fontWeight: 800, marginBottom: '5px' }}>Recruitment & Team Hub</h3>
         <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '25px' }}>
-          Manage job applications, schedule interviews, and source talent for your NGO operations.
+          Manage your recruits, monitor team status, verify mobile contacts, and add new candidates.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.2fr', gap: '30px', alignItems: 'start' }}>
-          <div>
-            <div style={{ background: 'var(--color-light-gray)', padding: '15px', borderRadius: 'var(--border-radius-sm)', marginBottom: '20px', display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr', gap: '10px' }}>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Search Candidate</label>
-                <input
-                  type="text"
-                  placeholder="Name or phone..."
-                  className="form-control"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter State</label>
-                <select
-                  className="form-control form-select"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                  value={filterState}
-                  onChange={(e) => { setFilterState(e.target.value); setFilterDistrict(''); }}
-                >
-                  <option value="">All States</option>
-                  {statesData.states.map((s: any) => (
-                    <option key={s.state} value={s.state}>{s.state}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter District</label>
-                <select
-                  className="form-control form-select"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                  value={filterDistrict}
-                  onChange={(e) => setFilterDistrict(e.target.value)}
-                  disabled={!filterState}
-                >
-                  <option value="">All Districts</option>
-                  {filterDistrictOptions.map((d: string) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter Status</label>
-                <select
-                  className="form-control form-select"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <option value="">All Statuses</option>
-                  <option value="applied">Applied</option>
-                  <option value="interview_scheduled">Interview Scheduled</option>
-                  <option value="hired">Hired</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ overflowX: 'auto', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)' }}>
-              <table className="table" style={{ margin: 0 }}>
-                <thead style={{ background: 'var(--color-light-gray)' }}>
-                  <tr>
-                    <th>Candidate</th>
-                    <th>Role Applied</th>
-                    <th>Contact</th>
-                    <th>Location</th>
-                    <th>Source</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCandidates.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} style={{ textAlign: 'center', padding: '20px', color: 'var(--color-muted)' }}>No candidates found matching the filters.</td>
-                    </tr>
-                  ) : (
-                    filteredCandidates.map(c => (
-                      <tr key={c.id}>
-                        <td>
-                          <div style={{ fontWeight: 600, color: 'var(--color-dark)' }}>{c.name}</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Registered on {new Date(c.createdAt).toLocaleDateString()}</div>
-                        </td>
-                        <td>
-                          <span style={{ fontSize: '0.8rem', padding: '4px 8px', background: 'var(--color-light-gray)', borderRadius: '4px', fontWeight: 500 }}>
-                            {c.position}
-                          </span>
-                        </td>
-                        <td>
-                          <div style={{ fontSize: '0.8rem' }}>+91 {c.phone}</div>
-                        </td>
-                        <td>
-                          <div style={{ fontSize: '0.8rem', fontWeight: 500 }}>{c.district}</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{c.state}</div>
-                        </td>
-                        <td>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: c.source.includes('Self') ? 'var(--color-primary)' : 'var(--color-muted)' }}>
-                            {c.source}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`status-badge status-${c.status === 'hired' ? 'active' : c.status === 'rejected' ? 'rejected' : c.status === 'interview_scheduled' ? 'pending' : 'pending'}`} style={{ textTransform: 'capitalize' }}>
-                            {c.status.replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '5px' }}>
-                            {c.status === 'applied' && (
-                              <button
-                                className="btn btn-outline"
-                                style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
-                                onClick={() => handleUpdateStatus(c.id, 'interview_scheduled')}
-                              >
-                                Schedule
-                              </button>
-                            )}
-                            {c.status === 'interview_scheduled' && (
-                              <button
-                                className="btn btn-secondary"
-                                style={{ padding: '4px 8px', fontSize: '0.7rem', background: 'var(--color-green)' }}
-                                onClick={() => handleUpdateStatus(c.id, 'hired')}
-                              >
-                                Hire
-                              </button>
-                            )}
-                            {c.status !== 'hired' && c.status !== 'rejected' && (
-                              <button
-                                className="btn btn-outline"
-                                style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}
-                                onClick={() => handleUpdateStatus(c.id, 'rejected')}
-                              >
-                                Reject
-                              </button>
-                            )}
-                            {(c.status === 'hired' || c.status === 'rejected') && (
-                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>No actions</span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div style={{ background: 'var(--color-light-gray)', padding: '20px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-gray-light)' }}>
-            <h4 style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '15px' }}>Add Candidate</h4>
-            <form onSubmit={handleAddCandidate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Full Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  style={{ background: 'white' }}
-                  placeholder="Enter full name"
-                  value={candName}
-                  onChange={(e) => setCandName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Position / Role</label>
-                <select
-                  className="form-control form-select"
-                  style={{ background: 'white' }}
-                  value={candPosition}
-                  onChange={(e) => setCandPosition(e.target.value)}
-                >
-                  <option value="Volunteer Advocate">Volunteer Advocate</option>
-                  <option value="District Coordinator">District Coordinator</option>
-                  <option value="Block Coordinator">Block Coordinator</option>
-                  <option value="State Coordinator">State Coordinator</option>
-                  <option value="Life Sakhi Distributor">Life Sakhi Distributor</option>
-                  <option value="Clinical Volunteer / Doctor">Clinical Volunteer / Doctor</option>
-                </select>
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Phone Number</label>
-                <input
-                  type="tel"
-                  className="form-control"
-                  style={{ background: 'white' }}
-                  placeholder="10-digit number"
-                  maxLength={10}
-                  value={candPhone}
-                  onChange={(e) => setCandPhone(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>State</label>
-                <select
-                  className="form-control form-select"
-                  style={{ background: 'white' }}
-                  value={candState}
-                  onChange={(e) => { setCandState(e.target.value); setCandDistrict(statesData.states.find((s: any) => s.state === e.target.value)?.districts[0] || ''); }}
-                >
-                  {statesData.states.map((s: any) => (
-                    <option key={s.state} value={s.state}>{s.state}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>District</label>
-                <select
-                  className="form-control form-select"
-                  style={{ background: 'white' }}
-                  value={candDistrict}
-                  onChange={(e) => setCandDistrict(e.target.value)}
-                >
-                  {districtOptions.map((d: string) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Source Mode</label>
-                <select
-                  className="form-control form-select"
-                  style={{ background: 'white' }}
-                  value={candSource}
-                  onChange={(e) => setCandSource(e.target.value)}
-                >
-                  <option value="Self Sourced">Self Sourced (Brought by Me)</option>
-                  <option value="NGO Allocated">NGO Allocated (Brought by NGO)</option>
-                </select>
-              </div>
-
-              <button type="submit" className="btn btn-secondary" style={{ width: '100%', marginTop: '5px' }}>
-                Register Candidate
-              </button>
-            </form>
-          </div>
+        {/* Tab Selection */}
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '25px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+          <button 
+            type="button"
+            style={{ background: 'none', border: 'none', borderBottom: recruitmentSubTab === 'applicants' ? '2.5px solid var(--color-primary)' : 'none', fontWeight: recruitmentSubTab === 'applicants' ? 700 : 500, padding: '8px 16px', cursor: 'pointer', color: recruitmentSubTab === 'applicants' ? 'var(--color-primary)' : 'var(--color-muted)' }}
+            onClick={() => setRecruitmentSubTab('applicants')}
+          >
+            Candidate Database
+          </button>
+          <button 
+            type="button"
+            style={{ background: 'none', border: 'none', borderBottom: recruitmentSubTab === 'my_team' ? '2.5px solid var(--color-primary)' : 'none', fontWeight: recruitmentSubTab === 'my_team' ? 700 : 500, padding: '8px 16px', cursor: 'pointer', color: recruitmentSubTab === 'my_team' ? 'var(--color-primary)' : 'var(--color-muted)' }}
+            onClick={() => setRecruitmentSubTab('my_team')}
+          >
+            My Team (Performance & Status Desk)
+          </button>
         </div>
+
+        {isVerifyingMobile && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+            <div style={{ background: 'white', padding: '30px', borderRadius: '8px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+              <h4 style={{ color: 'var(--color-primary)', fontWeight: 800, marginBottom: '10px' }}>Verify Candidate Phone</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '20px' }}>
+                Simulated confirmation code sent to +91 {candPhone}. Enter code <strong>123456</strong> to verify.
+              </p>
+              <input 
+                type="text" 
+                placeholder="Enter 123456" 
+                className="form-control" 
+                value={mobileOtp} 
+                onChange={(e) => setMobileOtp(e.target.value)} 
+                style={{ textAlign: 'center', fontSize: '1.2rem', letterSpacing: '4px', marginBottom: '20px' }} 
+              />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="button" className="btn btn-primary" style={{ flex: 1 }} onClick={verifyOtp}>Confirm</button>
+                <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => { setIsVerifyingMobile(false); setMobileOtp(''); }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {recruitmentSubTab === 'applicants' ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.3fr', gap: '30px', alignItems: 'start' }}>
+            {/* Left Side: Candidates Database */}
+            <div>
+              {/* Filters panel */}
+              <div style={{ background: 'var(--color-light-gray)', padding: '15px', borderRadius: 'var(--border-radius-sm)', marginBottom: '20px', display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Search Candidate</label>
+                  <input
+                    type="text"
+                    placeholder="Name or phone..."
+                    className="form-control"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter State</label>
+                  <select
+                    className="form-control form-select"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                    value={filterState}
+                    onChange={(e) => { setFilterState(e.target.value); setFilterDistrict(''); }}
+                  >
+                    <option value="">All States</option>
+                    {statesData.states.map((s: any) => (
+                      <option key={s.state} value={s.state}>{s.state}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter District</label>
+                  <select
+                    className="form-control form-select"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                    value={filterDistrict}
+                    onChange={(e) => setFilterDistrict(e.target.value)}
+                    disabled={!filterState}
+                  >
+                    <option value="">All Districts</option>
+                    {filterDistrictOptions.map((d: string) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter Status</label>
+                  <select
+                    className="form-control form-select"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="applied">Applied</option>
+                    <option value="interview_scheduled">Interview Scheduled</option>
+                    <option value="hired">Hired</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div style={{ overflowX: 'auto', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)' }}>
+                <table className="table" style={{ margin: 0 }}>
+                  <thead style={{ background: 'var(--color-light-gray)' }}>
+                    <tr>
+                      <th>Candidate</th>
+                      <th>Applied Role</th>
+                      <th>Contact</th>
+                      <th>Location</th>
+                      <th>Source</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCandidates.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} style={{ textAlign: 'center', padding: '20px', color: 'var(--color-muted)' }}>No candidates found matching the filters.</td>
+                      </tr>
+                    ) : (
+                      filteredCandidates.map(c => (
+                        <tr key={c.id}>
+                          <td>
+                            <div style={{ fontWeight: 600, color: 'var(--color-dark)' }}>{c.name}</div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Registered on {new Date(c.createdAt).toLocaleDateString()}</div>
+                          </td>
+                          <td>
+                            <span style={{ fontSize: '0.8rem', padding: '4px 8px', background: 'var(--color-light-gray)', borderRadius: '4px', fontWeight: 500 }}>
+                              {c.position}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ fontSize: '0.8rem' }}>+91 {c.phone}</div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{c.email}</div>
+                          </td>
+                          <td>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 500 }}>{c.district}</div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{c.state}</div>
+                          </td>
+                          <td>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: c.source.includes('Self') ? 'var(--color-primary)' : 'var(--color-muted)' }}>
+                              {c.source}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`status-badge status-${c.status === 'hired' ? 'active' : c.status === 'rejected' ? 'rejected' : c.status === 'interview_scheduled' ? 'pending' : 'pending'}`} style={{ textTransform: 'capitalize' }}>
+                              {c.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              {c.status === 'applied' && (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline"
+                                  style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
+                                  onClick={() => handleUpdateStatus(c.id, 'interview_scheduled')}
+                                >
+                                  Schedule
+                                </button>
+                              )}
+                              {c.status === 'interview_scheduled' && (
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary"
+                                  style={{ padding: '4px 8px', fontSize: '0.7rem', background: 'var(--color-green)' }}
+                                  onClick={() => handleUpdateStatus(c.id, 'hired')}
+                                >
+                                  Hire
+                                </button>
+                              )}
+                              {c.status !== 'hired' && c.status !== 'rejected' && (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline"
+                                  style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}
+                                  onClick={() => handleUpdateStatus(c.id, 'rejected')}
+                                >
+                                  Reject
+                                </button>
+                              )}
+                              {(c.status === 'hired' || c.status === 'rejected') && (
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>No actions</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Right Side: Add Candidate Form */}
+            <div style={{ background: 'var(--color-light-gray)', padding: '20px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-gray-light)' }}>
+              <h4 style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '15px' }}>Add Candidate</h4>
+              <form onSubmit={handleAddCandidate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Full Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    style={{ background: 'white' }}
+                    placeholder="Enter full name"
+                    value={candName}
+                    onChange={(e) => setCandName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Email Address</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    style={{ background: 'white' }}
+                    placeholder="name@example.com"
+                    value={candEmail}
+                    onChange={(e) => setCandEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Phone Number</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      style={{ background: 'white', flex: 1 }}
+                      placeholder="10-digit phone"
+                      maxLength={10}
+                      value={candPhone}
+                      onChange={(e) => { setCandPhone(e.target.value); setIsMobileVerified(false); }}
+                      disabled={isMobileVerified}
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      onClick={triggerSendOtp}
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', background: isMobileVerified ? 'var(--color-green)' : 'var(--color-primary)' }}
+                      disabled={isMobileVerified}
+                    >
+                      {isMobileVerified ? 'Verified ✓' : 'Send OTP'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Aadhaar Number (12-Digits)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    style={{ background: 'white' }}
+                    placeholder="XXXX XXXX XXXX"
+                    maxLength={12}
+                    value={candAadhaar}
+                    onChange={(e) => setCandAadhaar(e.target.value.replace(/\D/g, ''))}
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Position / Role</label>
+                  <select
+                    className="form-control form-select"
+                    style={{ background: 'white' }}
+                    value={candPosition}
+                    onChange={(e) => setCandPosition(e.target.value)}
+                  >
+                    <option value="Volunteer Advocate">Volunteer Advocate</option>
+                    <option value="District Coordinator">District Coordinator</option>
+                    <option value="Block Coordinator">Block Coordinator</option>
+                    <option value="State Coordinator">State Coordinator</option>
+                    <option value="Life Sakhi Distributor">Life Sakhi Distributor</option>
+                    <option value="Clinical Volunteer / Doctor">Clinical Volunteer / Doctor</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>State</label>
+                    <select
+                      className="form-control form-select"
+                      style={{ background: 'white' }}
+                      value={candState}
+                      onChange={(e) => { setCandState(e.target.value); setCandDistrict(statesData.states.find((s: any) => s.state === e.target.value)?.districts[0] || ''); }}
+                    >
+                      {statesData.states.map((s: any) => (
+                        <option key={s.state} value={s.state}>{s.state}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>District</label>
+                    <select
+                      className="form-control form-select"
+                      style={{ background: 'white' }}
+                      value={candDistrict}
+                      onChange={(e) => setCandDistrict(e.target.value)}
+                    >
+                      {districtOptions.map((d: string) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '10px' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>City</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      style={{ background: 'white' }}
+                      placeholder="e.g. Mathura"
+                      value={candCity}
+                      onChange={(e) => setCandCity(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Pincode</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      style={{ background: 'white' }}
+                      placeholder="6-Digits"
+                      maxLength={6}
+                      value={candPincode}
+                      onChange={(e) => setCandPincode(e.target.value.replace(/\D/g, ''))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Physical Address</label>
+                  <textarea
+                    rows={2}
+                    className="form-control"
+                    style={{ background: 'white', resize: 'none' }}
+                    placeholder="Enter complete house address"
+                    value={candAddress}
+                    onChange={(e) => setCandAddress(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ margin: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Source Mode</label>
+                  <select
+                    className="form-control form-select"
+                    style={{ background: 'white' }}
+                    value={candSource}
+                    onChange={(e) => setCandSource(e.target.value)}
+                  >
+                    <option value="Self Sourced">Self Sourced (Brought by Me)</option>
+                    <option value="NGO Allocated">NGO Allocated (Brought by NGO)</option>
+                  </select>
+                </div>
+
+                <button type="submit" className="btn btn-secondary" style={{ width: '100%', marginTop: '5px' }}>
+                  Register Candidate
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          /* My Team list */
+          <div style={{ overflowX: 'auto', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)' }}>
+            <table className="table" style={{ margin: 0 }}>
+              <thead style={{ background: 'var(--color-light-gray)' }}>
+                <tr>
+                  <th>Team Member</th>
+                  <th>Designation</th>
+                  <th>Contact Details</th>
+                  <th>Location / Pincode</th>
+                  <th>Sales (Subsidized Packs)</th>
+                  <th>Portal Access Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myTeamMembers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: 'var(--color-muted)' }}>
+                      No active team members registered under your recruiter account yet.
+                    </td>
+                  </tr>
+                ) : (
+                  myTeamMembers.map(m => (
+                    <tr key={m.uid}>
+                      <td>
+                        <div style={{ fontWeight: 600, color: 'var(--color-dark)' }}>{m.displayName}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Joined {m.createdAt ? new Date(m.createdAt).toLocaleDateString() : 'N/A'}</div>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: '0.8rem', padding: '4px 8px', background: 'rgba(140, 198, 62, 0.08)', color: 'var(--color-green)', borderRadius: '4px', fontWeight: 600 }}>
+                          {getRoleDisplayName(m.role)}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '0.8rem' }}>+91 {m.phone || 'N/A'}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{m.email}</div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '0.8rem' }}>{m.address || 'Not Configured'}</div>
+                      </td>
+                      <td>
+                        <strong style={{ color: 'var(--color-primary)', fontSize: '0.9rem' }}>
+                          {m.role === 'women_distributor' ? '320 Packs (Subsidized)' : 'N/A'}
+                        </strong>
+                      </td>
+                      <td>
+                        <span className={`status-badge status-${m.status === 'active' ? 'active' : 'rejected'}`}>
+                          {m.status === 'active' ? 'Active' : m.status === 'inactive' ? 'Blocked' : m.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button 
+                          type="button"
+                          className="btn btn-outline" 
+                          onClick={() => toggleMemberStatus(m.uid, m.status)}
+                          style={{ padding: '4px 10px', fontSize: '0.75rem', borderColor: m.status === 'active' ? '#ff4d4d' : 'var(--color-green)', color: m.status === 'active' ? '#ff4d4d' : 'var(--color-green)' }}
+                        >
+                          {m.status === 'active' ? 'Block Member' : 'Unblock Member'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     );
   };
@@ -1309,6 +1715,314 @@ const Dashboard: React.FC = () => {
         <main className="dashboard-body">
           {activeTab === 'overview' && renderOverview()}
 
+          {activeTab === 'my_orders' && (
+            <div className="card" style={{ padding: '30px' }}>
+              <h4 style={{ color: 'var(--color-primary)', marginBottom: '20px', fontWeight: 800 }}>My Stock Orders</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '25px' }}>
+                Track payment approvals, processing status, DTDC tracking ids, and package delivery.
+              </p>
+              
+              <div style={{ overflowX: 'auto', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)' }}>
+                <table className="table" style={{ margin: 0 }}>
+                  <thead style={{ background: 'var(--color-light-gray)' }}>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Quantity / Value</th>
+                      <th>Payment Mode</th>
+                      <th>Status</th>
+                      <th>DTDC Shipment Tracking</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.filter(o => o.userEmail === userProfile?.email).length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: 'center', padding: '20px', color: 'var(--color-muted)' }}>You have not placed any stock orders yet.</td>
+                      </tr>
+                    ) : (
+                      orders.filter(o => o.userEmail === userProfile?.email).map(o => (
+                        <tr key={o.id}>
+                          <td style={{ fontWeight: 600, color: 'var(--color-primary)' }}>{o.id}</td>
+                          <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+                          <td>
+                            <div style={{ fontWeight: 600 }}>{o.quantity} Packets</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Total: ₹{o.amount}</div>
+                          </td>
+                          <td style={{ textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 600 }}>{o.paymentMode}</td>
+                          <td>
+                            <span className={`status-badge status-${o.status === 'delivered' ? 'active' : o.status === 'shipped' ? 'pending' : 'pending'}`} style={{ textTransform: 'capitalize' }}>
+                              {o.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td>
+                            {o.status === 'shipped' || o.status === 'delivered' ? (
+                              <div>
+                                <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>DTDC Tracking ID: {o.trackingId}</div>
+                                <a 
+                                  href={`https://www.dtdc.in/tracking/tracking_results.asp?ctc=${o.trackingId}`} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="btn btn-primary"
+                                  style={{ display: 'inline-block', padding: '3px 8px', fontSize: '0.7rem', marginTop: '4px', textDecoration: 'none' }}
+                                >
+                                  Track DTDC Shipment 🡕
+                                </a>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>Pending shipment dispatch</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'shipment_desk' && (
+            <div className="card" style={{ padding: '30px' }}>
+              <h4 style={{ color: 'var(--color-primary)', marginBottom: '20px', fontWeight: 800 }}>Shipments & Dispatch Manager</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '25px' }}>
+                Verify prepaid order screenshot receipts, approve orders, allocate DTDC tracking numbers, and manage delivery status.
+              </p>
+
+              <div style={{ overflowX: 'auto', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)' }}>
+                <table className="table" style={{ margin: 0 }}>
+                  <thead style={{ background: 'var(--color-light-gray)' }}>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Distributor Name</th>
+                      <th>Quantity / Cost</th>
+                      <th>Payment Detail</th>
+                      <th>Shipping Block</th>
+                      <th>Status</th>
+                      <th>DTDC Tracking ID / Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} style={{ textAlign: 'center', padding: '20px', color: 'var(--color-muted)' }}>No stock orders registered in the system yet.</td>
+                      </tr>
+                    ) : (
+                      orders.map(o => (
+                        <tr key={o.id}>
+                          <td style={{ fontWeight: 600, color: 'var(--color-primary)' }}>{o.id}</td>
+                          <td>
+                            <div style={{ fontWeight: 600 }}>{o.userName}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{o.userEmail}</div>
+                          </td>
+                          <td>
+                            <div>{o.quantity} Packets</div>
+                            <strong style={{ fontSize: '0.75rem' }}>₹{o.amount}</strong>
+                          </td>
+                          <td>
+                            <div style={{ textTransform: 'uppercase', fontWeight: 600, fontSize: '0.8rem' }}>{o.paymentMode}</div>
+                            {o.paymentProofUrl && (
+                              <button 
+                                type="button"
+                                className="btn btn-outline" 
+                                style={{ padding: '2px 6px', fontSize: '0.7rem', marginTop: '4px' }}
+                                onClick={() => {
+                                  const win = window.open();
+                                  if (win) {
+                                    win.document.write(`<iframe src="${o.paymentProofUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                  }
+                                }}
+                              >
+                                View Payment Proof Receipt 🖼
+                              </button>
+                            )}
+                          </td>
+                          <td>{o.block}</td>
+                          <td>
+                            <span className={`status-badge status-${o.status === 'delivered' ? 'active' : o.status === 'shipped' ? 'pending' : 'pending'}`}>
+                              {o.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td>
+                            {o.status === 'pending_approval' && (
+                              <button 
+                                type="button"
+                                className="btn btn-secondary" 
+                                style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                                onClick={() => {
+                                  const updated = orders.map(order => order.id === o.id ? { ...order, status: 'processing', paymentStatus: 'success' } : order);
+                                  setOrders(updated);
+                                  localStorage.setItem('life_sakhi_orders', JSON.stringify(updated));
+                                  alert('Payment Verified! Order moved to processing & dispatch queue.');
+                                }}
+                              >
+                                Confirm Payment
+                              </button>
+                            )}
+
+                            {o.status === 'processing' && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                <input 
+                                  type="text" 
+                                  placeholder="DTDC Tracking ID" 
+                                  className="form-control" 
+                                  style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto', background: 'white' }}
+                                  onChange={(e) => setInputTrackingId(e.target.value)} 
+                                />
+                                <button 
+                                  type="button"
+                                  className="btn btn-primary" 
+                                  style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                                  onClick={() => {
+                                    if (!inputTrackingId) {
+                                      alert('Please enter a tracking ID first!');
+                                      return;
+                                    }
+                                    const updated = orders.map(order => order.id === o.id ? { ...order, status: 'shipped', trackingId: inputTrackingId } : order);
+                                    setOrders(updated);
+                                    localStorage.setItem('life_sakhi_orders', JSON.stringify(updated));
+                                    setInputTrackingId('');
+                                    alert(`Order ${o.id} marked shipped via DTDC with Tracking ID: ${inputTrackingId}`);
+                                  }}
+                                >
+                                  Dispatch Shipment
+                                </button>
+                              </div>
+                            )}
+
+                            {o.status === 'shipped' && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Tracking: {o.trackingId}</div>
+                                <button 
+                                  type="button"
+                                  className="btn btn-secondary" 
+                                  style={{ padding: '4px 10px', fontSize: '0.75rem', background: 'var(--color-green)' }}
+                                  onClick={() => {
+                                    const updated = orders.map(order => order.id === o.id ? { ...order, status: 'delivered' } : order);
+                                    setOrders(updated);
+                                    localStorage.setItem('life_sakhi_orders', JSON.stringify(updated));
+                                    alert(`Order ${o.id} marked successfully delivered!`);
+                                  }}
+                                >
+                                  Mark Delivered
+                                </button>
+                              </div>
+                            )}
+
+                            {o.status === 'delivered' && (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--color-green)', fontWeight: 600 }}>Delivered ✓</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'admin_permissions' && (
+            <div className="card" style={{ padding: '30px' }}>
+              <h4 style={{ color: 'var(--color-primary)', marginBottom: '15px', fontWeight: 800 }}>Access Control & Permissions Panel</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '25px' }}>
+                Toggle which segments and dashboard features are visible to coordinators, delivery department staff, and hiring partners.
+              </p>
+
+              <div style={{ background: '#f8f9fa', padding: '25px', borderRadius: '8px', border: '1px solid #eee', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div>
+                  <h5 style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '10px' }}>State / District Coordinator Features</h5>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: '10px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={permissions.state_coordinator?.schedule_camps} 
+                        onChange={(e) => {
+                          const updated = { ...permissions, state_coordinator: { ...permissions.state_coordinator, schedule_camps: e.target.checked } };
+                          setPermissions(updated);
+                          localStorage.setItem('life_sakhi_role_permissions', JSON.stringify(updated));
+                        }} 
+                      />
+                      Access to "Register Camps" Tab
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={permissions.state_coordinator?.applicant_review} 
+                        onChange={(e) => {
+                          const updated = { ...permissions, state_coordinator: { ...permissions.state_coordinator, applicant_review: e.target.checked } };
+                          setPermissions(updated);
+                          localStorage.setItem('life_sakhi_role_permissions', JSON.stringify(updated));
+                        }} 
+                      />
+                      Access to "Review Applicants" Tab
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={permissions.state_coordinator?.recruitment_hub} 
+                        onChange={(e) => {
+                          const updated = { ...permissions, state_coordinator: { ...permissions.state_coordinator, recruitment_hub: e.target.checked } };
+                          setPermissions(updated);
+                          localStorage.setItem('life_sakhi_role_permissions', JSON.stringify(updated));
+                        }} 
+                      />
+                      Access to "Recruitment Hub" Tab
+                    </label>
+                  </div>
+                </div>
+
+                <hr style={{ border: '0', borderTop: '1px solid #ddd', margin: '5px 0' }} />
+
+                <div>
+                  <h5 style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '10px' }}>Hiring Partner Features</h5>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: '10px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={permissions.hiring_partner?.recruitment_hub} 
+                        onChange={(e) => {
+                          const updated = { ...permissions, hiring_partner: { ...permissions.hiring_partner, recruitment_hub: e.target.checked } };
+                          setPermissions(updated);
+                          localStorage.setItem('life_sakhi_role_permissions', JSON.stringify(updated));
+                        }} 
+                      />
+                      Access to "Recruitment Hub" Tab
+                    </label>
+                  </div>
+                </div>
+
+                <hr style={{ border: '0', borderTop: '1px solid #ddd', margin: '5px 0' }} />
+
+                <div>
+                  <h5 style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '10px' }}>Delivery Department Staff Features</h5>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: '10px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={permissions.delivery_staff?.shipment_desk} 
+                        onChange={(e) => {
+                          const updated = { ...permissions, delivery_staff: { ...permissions.delivery_staff, shipment_desk: e.target.checked } };
+                          setPermissions(updated);
+                          localStorage.setItem('life_sakhi_role_permissions', JSON.stringify(updated));
+                        }} 
+                      />
+                      Access to "Shipments Desk"
+                    </label>
+                  </div>
+                </div>
+
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  style={{ marginTop: '10px', padding: '10px' }}
+                  onClick={() => alert('Permissions config saved successfully!')}
+                >
+                  Save Access Settings
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Admin sub-views */}
           {activeTab === 'approve_registrations' && (
             <div className="card" style={{ padding: '30px' }}>
@@ -1339,7 +2053,14 @@ const Dashboard: React.FC = () => {
                     <tbody>
                       {allUsers.filter(u => u.status === 'pending').map((u) => (
                         <tr key={u.uid} style={{ borderBottom: '1px solid #eee' }}>
-                          <td style={{ padding: '12px', fontWeight: 600 }}>{u.displayName}</td>
+                          <td style={{ padding: '12px', fontWeight: 600 }}>
+                            <div>{u.displayName}</div>
+                            {u.recruiterEmail && (
+                              <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: 500, fontStyle: 'italic', marginTop: '2px' }}>
+                                Sourced by: {u.recruiterEmail}
+                              </div>
+                            )}
+                          </td>
                           <td style={{ padding: '12px' }}>
                             <span style={{ background: 'rgba(10, 60, 140, 0.08)', color: 'var(--color-primary)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
                               {getRoleDisplayName(u.role)}
@@ -1622,7 +2343,25 @@ const Dashboard: React.FC = () => {
                         </td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
                           {u.role !== 'admin' ? (
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                              {u.role !== 'admin' && u.role !== 'hiring_partner' && (
+                                <select 
+                                  value={u.recruiterEmail || ''} 
+                                  onChange={(e) => {
+                                    const selectedRecruiterEmail = e.target.value;
+                                    const updatedUsers = allUsers.map(user => user.uid === u.uid ? { ...user, recruiterEmail: selectedRecruiterEmail || undefined } : user);
+                                    localStorage.setItem('life_sakhi_all_users', JSON.stringify(updatedUsers));
+                                    loadAllUsers();
+                                    alert(`Successfully assigned ${u.displayName} to Recruiter: ${selectedRecruiterEmail || 'None'}`);
+                                  }}
+                                  style={{ padding: '4px 6px', fontSize: '0.7rem', borderRadius: '4px', border: '1px solid #ddd', background: 'white' }}
+                                >
+                                  <option value="">No Recruiter</option>
+                                  {allUsers.filter(user => user.role === 'hiring_partner').map(hp => (
+                                    <option key={hp.uid} value={hp.email}>{hp.displayName}</option>
+                                  ))}
+                                </select>
+                              )}
                               <button 
                                 onClick={() => {
                                   setEditingMemberUid(u.uid);
@@ -1664,31 +2403,130 @@ const Dashboard: React.FC = () => {
           {activeTab === 'place_order' && (
             <div className="card" style={{ padding: '30px', maxWidth: '600px', margin: '0 auto' }}>
               <h4 style={{ color: 'var(--color-primary)', marginBottom: '20px', fontWeight: 800 }}>Order Sanitary Pad Stock</h4>
-              {formSubmitted ? (
-                <div style={{ padding: '20px', background: 'rgba(140, 198, 62, 0.1)', borderRadius: '6px', color: 'var(--color-green)', fontWeight: 600, textAlign: 'center' }}>
-                  Stock Request Submitted Successfully to Block Coordinator!
+              <form onSubmit={handleOrderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Quantity (Packets - Subsidized price ₹25/packet)</label>
+                  <input 
+                    type="number" 
+                    name="quantity" 
+                    required 
+                    min={40} 
+                    value={sakhiOrder.quantity || '50'} 
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSakhiOrder((prev: any) => ({ ...prev, quantity: val }));
+                    }} 
+                    style={{ width: '100%', padding: '10px', border: '1px solid var(--color-gray-light)', borderRadius: '4px' }} 
+                  />
+                  <div style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginTop: '5px', fontWeight: 600 }}>
+                    Subsidized Order Cost: ₹{parseInt(sakhiOrder.quantity) ? parseInt(sakhiOrder.quantity) * 25 : 0}
+                  </div>
+                  {(parseInt(sakhiOrder.quantity) || 0) * 25 < 1000 && (
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-red)', marginTop: '4px', fontWeight: 500 }}>
+                      ⚠ Minimum order value must be at least ₹1,000 (at least 40 packets).
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Quantity (Packets)</label>
-                    <select name="quantity" value={sakhiOrder.quantity} onChange={handleInputChange(setSakhiOrder)} style={{ width: '100%', padding: '10px', border: '1px solid var(--color-gray-light)', borderRadius: '4px' }}>
-                      <option value="50">50 Packs (Subsidized Price: ₹1,250)</option>
-                      <option value="100">100 Packs (Subsidized Price: ₹2,300)</option>
-                      <option value="200">200 Packs (Subsidized Price: ₹4,000)</option>
-                    </select>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Payment Mode</label>
+                  <select 
+                    value={paymentMode} 
+                    onChange={(e) => setPaymentMode(e.target.value as 'prepaid' | 'cod')} 
+                    style={{ width: '100%', padding: '10px', border: '1px solid var(--color-gray-light)', borderRadius: '4px', background: 'white' }}
+                  >
+                    <option value="prepaid">Prepaid (UPI Scan QR / Online)</option>
+                    <option value="cod">Cash On Delivery (COD)</option>
+                  </select>
+                </div>
+
+                {paymentMode === 'prepaid' ? (
+                  <div style={{ background: '#f8f9fa', border: '1px solid #ddd', padding: '15px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <label style={{ fontWeight: 700, fontSize: '0.85rem', display: 'block', marginBottom: '8px', color: 'var(--color-primary)' }}>Scan QR Code to Pay</label>
+                      <div style={{ width: '150px', height: '150px', margin: '0 auto 10px auto', background: 'white', padding: '10px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee' }}>
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=lifesakhingo@ybl%26am=${(parseInt(sakhiOrder.quantity) || 50) * 25}%26cu=INR`} 
+                          alt="UPI Payment QR Code" 
+                          style={{ width: '130px', height: '130px' }} 
+                        />
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Scan with GPay, PhonePe, Paytm, or BHIM UPI</span>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Upload Payment Screenshot (Proof)</label>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        required={paymentMode === 'prepaid'}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const img = new Image();
+                            const objectUrl = URL.createObjectURL(file);
+                            img.src = objectUrl;
+                            img.onload = () => {
+                              const canvas = document.createElement('canvas');
+                              const MAX_SIZE = 450;
+                              let width = img.width;
+                              let height = img.height;
+                              if (width > height) {
+                                if (width > MAX_SIZE) {
+                                  height *= MAX_SIZE / width;
+                                  width = MAX_SIZE;
+                                }
+                              } else {
+                                if (height > MAX_SIZE) {
+                                  width *= MAX_SIZE / height;
+                                  height = MAX_SIZE;
+                                }
+                              }
+                              canvas.width = width;
+                              canvas.height = height;
+                              const ctx = canvas.getContext('2d');
+                              if (ctx) {
+                                ctx.drawImage(img, 0, 0, width, height);
+                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                                setPaymentProof(compressedBase64);
+                              }
+                              URL.revokeObjectURL(objectUrl);
+                            };
+                          }
+                        }}
+                        style={{ width: '100%', fontSize: '0.8rem' }}
+                      />
+                      {paymentProof && (
+                        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <img src={paymentProof} alt="Receipt Preview" style={{ width: '60px', height: '60px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #ddd' }} />
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-green)' }}>Screenshot receipt compressed successfully!</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Delivery Block Area</label>
-                    <input type="text" name="block" required value={sakhiOrder.block} onChange={handleInputChange(setSakhiOrder)} style={{ width: '100%', padding: '10px', border: '1px solid var(--color-gray-light)', borderRadius: '4px' }} />
+                ) : (
+                  <div style={{ background: '#fff3cd', border: '1px solid #ffeeba', color: '#856404', padding: '15px', borderRadius: '6px', fontSize: '0.8rem' }}>
+                    <strong>Cash on Delivery (COD) Notice:</strong> COD orders require manual verification and approval from the Delivery department. It may delay processing.
                   </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Delivery Notes / Directions</label>
-                    <textarea name="notes" rows={3} value={sakhiOrder.notes} onChange={handleInputChange(setSakhiOrder)} placeholder="Provide special instructions..." style={{ width: '100%', padding: '10px', border: '1px solid var(--color-gray-light)', borderRadius: '4px', resize: 'none' }} />
-                  </div>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '10px', marginTop: '10px' }}>Request Stock</button>
-                </form>
-              )}
+                )}
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Delivery Block Area</label>
+                  <input type="text" name="block" required value={sakhiOrder.block} onChange={handleInputChange(setSakhiOrder)} placeholder="e.g. Achhnera Block" style={{ width: '100%', padding: '10px', border: '1px solid var(--color-gray-light)', borderRadius: '4px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '5px' }}>Delivery Notes / Directions</label>
+                  <textarea name="notes" rows={2} value={sakhiOrder.notes} onChange={handleInputChange(setSakhiOrder)} placeholder="Provide special instructions..." style={{ width: '100%', padding: '10px', border: '1px solid var(--color-gray-light)', borderRadius: '4px', resize: 'none' }} />
+                </div>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary" 
+                  disabled={(parseInt(sakhiOrder.quantity) || 0) * 25 < 1000}
+                  style={{ padding: '10px', marginTop: '10px' }}
+                >
+                  Request & Purchase Stock
+                </button>
+              </form>
             </div>
           )}
 
