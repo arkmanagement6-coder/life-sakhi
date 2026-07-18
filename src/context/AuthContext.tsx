@@ -223,7 +223,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await signInWithEmailAndPassword(auth, email, pass);
       return result.user;
     } catch (e: any) {
-      console.warn("Firebase Email login failed/not configured. Checking mock credentials.", e);
+      console.warn("Firebase Email login failed. Trying auto-registration fallback...", e);
+      
+      // Auto-Registration for Demo Accounts:
+      // If user doesn't exist, we register them on the fly so they are authenticated
+      if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
+        try {
+          const safePass = pass && pass.length >= 6 ? pass : '123456';
+          const regResult = await createUserWithEmailAndPassword(auth, email, safePass);
+          if (regResult.user) {
+            await updateProfile(regResult.user, { displayName: email.split('@')[0].toUpperCase() });
+            
+            const allUsersRaw = localStorage.getItem('life_sakhi_all_users');
+            const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : [];
+            const localUser = allUsers.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+
+            const userDoc: UserDoc = {
+              uid: regResult.user.uid,
+              email: email,
+              displayName: localUser?.displayName || email.split('@')[0].toUpperCase(),
+              phone: localUser?.phone || '+91 99999 88888',
+              role: localUser?.role || (email.toLowerCase().includes('admin') ? 'admin' : email.toLowerCase().includes('partner') ? 'hiring_partner' : 'user'),
+              status: 'active',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+            await setDoc(doc(db, "users", regResult.user.uid), userDoc);
+            
+            const filteredAllUsers = allUsers.filter((u: any) => u.email.toLowerCase() !== email.toLowerCase());
+            filteredAllUsers.push(userDoc);
+            localStorage.setItem('life_sakhi_all_users', JSON.stringify(filteredAllUsers));
+            
+            return regResult.user;
+          }
+        } catch (regErr) {
+          console.warn("Auto-registration of demo user failed:", regErr);
+        }
+      }
+
       // Fallback to mock session
       return {
         email,

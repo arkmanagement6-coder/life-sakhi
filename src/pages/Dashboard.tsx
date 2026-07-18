@@ -192,10 +192,49 @@ const Dashboard: React.FC = () => {
   };
 
   React.useEffect(() => {
-    loadAllUsers();
-    loadCandidates();
-    loadOrders();
-    loadPermissions();
+    const syncLocalToFirestore = async () => {
+      // 1. Fetch current database states
+      await loadAllUsers();
+      await loadCandidates();
+      await loadOrders();
+      await loadPermissions();
+
+      // 2. Sync local users to Firestore if they exist in localStorage
+      const localUsersRaw = localStorage.getItem('life_sakhi_all_users');
+      if (localUsersRaw) {
+        try {
+          const localUsers = JSON.parse(localUsersRaw);
+          for (const u of localUsers) {
+            if (u.uid) {
+              await setDoc(doc(db, "users", u.uid), u, { merge: true });
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to sync local users to Firestore:", e);
+        }
+      }
+
+      // 3. Sync local candidates to Firestore
+      const localCandidatesRaw = localStorage.getItem('life_sakhi_candidates');
+      if (localCandidatesRaw) {
+        try {
+          const localCands = JSON.parse(localCandidatesRaw);
+          for (const c of localCands) {
+            if (c.id) {
+              await setDoc(doc(db, "candidates", c.id), c, { merge: true });
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to sync local candidates to Firestore:", e);
+        }
+      }
+
+      // Reload database data to match the newly uploaded items
+      await loadAllUsers();
+      await loadCandidates();
+    };
+
+    syncLocalToFirestore();
   }, []);
 
   React.useEffect(() => {
