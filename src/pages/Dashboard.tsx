@@ -9,6 +9,7 @@ import {
   Heart, LogOut, Check, X, Menu, Home, User, Landmark, 
   Sparkles, CheckCircle2
 } from 'lucide-react';
+import statesData from '../utils/states-and-districts.json';
 
 const Dashboard: React.FC = () => {
   const { userProfile, loading, updateUserProfileDetails, approveUserStatus, logout } = useAuth();
@@ -23,6 +24,47 @@ const Dashboard: React.FC = () => {
   const [profileAddress, setProfileAddress] = useState(userProfile?.address || 'Not Configured');
   const [profileImage, setProfileImage] = useState(userProfile?.profileImageUrl || '');
   const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
+
+  // Candidate data type for Recruitment Hub
+  interface Candidate {
+    id: string;
+    name: string;
+    position: string;
+    phone: string;
+    state: string;
+    district: string;
+    source: string;
+    status: 'applied' | 'interview_scheduled' | 'hired' | 'rejected';
+    createdAt: string;
+  }
+
+  // Seeding candidates state
+  const [candidates, setCandidates] = useState<Candidate[]>(() => {
+    const raw = localStorage.getItem('life_sakhi_candidates');
+    if (raw) return JSON.parse(raw);
+    const defaultCandidates: Candidate[] = [
+      { id: '1', name: 'Ramesh Yadav', position: 'Volunteer Advocate', phone: '9876543210', state: 'Uttar Pradesh', district: 'Agra', source: 'NGO Allocated', status: 'applied', createdAt: new Date().toISOString() },
+      { id: '2', name: 'Sunita Patel', position: 'Block Coordinator', phone: '9988776655', state: 'Uttar Pradesh', district: 'Mathura', source: 'Self Sourced', status: 'interview_scheduled', createdAt: new Date().toISOString() },
+      { id: '3', name: 'Karan Singh', position: 'Volunteer Advocate', phone: '8877665544', state: 'Maharashtra', district: 'Pune', source: 'Self Sourced', status: 'hired', createdAt: new Date().toISOString() },
+      { id: '4', name: 'Priya Sharma', position: 'Life Sakhi Distributor', phone: '7766554433', state: 'Delhi', district: 'New Delhi', source: 'NGO Allocated', status: 'rejected', createdAt: new Date().toISOString() }
+    ];
+    localStorage.setItem('life_sakhi_candidates', JSON.stringify(defaultCandidates));
+    return defaultCandidates;
+  });
+
+  // Recruitment Add Candidate states
+  const [candName, setCandName] = useState('');
+  const [candPosition, setCandPosition] = useState('Volunteer Advocate');
+  const [candPhone, setCandPhone] = useState('');
+  const [candState, setCandState] = useState('Uttar Pradesh');
+  const [candDistrict, setCandDistrict] = useState('Agra');
+  const [candSource, setCandSource] = useState('Self Sourced');
+
+  // Recruitment Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterState, setFilterState] = useState('');
+  const [filterDistrict, setFilterDistrict] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
 
   // Admin user list state
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -203,6 +245,8 @@ const Dashboard: React.FC = () => {
         return 'CSR Partner';
       case 'corporate_partner':
         return 'Corporate Partner';
+      case 'hiring_partner':
+        return 'Hiring Partner';
       case 'hospital':
         return 'Hospital Partner';
       case 'school':
@@ -294,7 +338,13 @@ const Dashboard: React.FC = () => {
         return [
           ...common,
           { id: 'schedule_camps', label: 'Register Camps', icon: <Calendar size={18} /> },
-          { id: 'applicant_review', label: 'Review Applicants', icon: <User size={18} /> }
+          { id: 'applicant_review', label: 'Review Applicants', icon: <User size={18} /> },
+          { id: 'recruitment_hub', label: 'Recruitment Hub', icon: <Users size={18} /> }
+        ];
+      case 'hiring_partner':
+        return [
+          ...common,
+          { id: 'recruitment_hub', label: 'Recruitment Hub', icon: <Users size={18} /> }
         ];
       case 'donor':
       case 'csr_partner':
@@ -440,6 +490,24 @@ const Dashboard: React.FC = () => {
             <div className="stat-card card-green">
               <span>80G Deductions</span>
               <h3>₹75,000</h3>
+            </div>
+          </div>
+        );
+      }
+      if (role === 'hiring_partner') {
+        return (
+          <div className="grid-3" style={{ gap: '20px', marginBottom: '30px' }}>
+            <div className="stat-card card-blue">
+              <span>Candidates Sourced</span>
+              <h3>48 Candidates</h3>
+            </div>
+            <div className="stat-card card-green">
+              <span>Interviews Scheduled</span>
+              <h3>8 Scheduled</h3>
+            </div>
+            <div className="stat-card card-blue">
+              <span>Successful Joinings</span>
+              <h3>12 Hired</h3>
             </div>
           </div>
         );
@@ -628,6 +696,309 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRecruitmentHub = () => {
+    const selectedStateObj = statesData.states.find((s: any) => s.state === candState);
+    const districtOptions = selectedStateObj ? selectedStateObj.districts : [];
+
+    const filterStateObj = statesData.states.find((s: any) => s.state === filterState);
+    const filterDistrictOptions = filterStateObj ? filterStateObj.districts : [];
+
+    const filteredCandidates = candidates.filter(c => {
+      const matchSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
+      const matchState = filterState ? c.state === filterState : true;
+      const matchDistrict = filterDistrict ? c.district === filterDistrict : true;
+      const matchStatus = filterStatus ? c.status === filterStatus : true;
+      return matchSearch && matchState && matchDistrict && matchStatus;
+    });
+
+    const handleAddCandidate = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!candName || !candPhone) return;
+
+      const newCand: Candidate = {
+        id: 'cand-' + Math.random().toString(36).substring(7),
+        name: candName,
+        position: candPosition,
+        phone: candPhone,
+        state: candState,
+        district: candDistrict,
+        source: candSource,
+        status: 'applied',
+        createdAt: new Date().toISOString()
+      };
+
+      const updated = [newCand, ...candidates];
+      setCandidates(updated);
+      localStorage.setItem('life_sakhi_candidates', JSON.stringify(updated));
+
+      setCandName('');
+      setCandPhone('');
+      alert('New Candidate registered successfully!');
+    };
+
+    const handleUpdateStatus = (id: string, newStatus: 'applied' | 'interview_scheduled' | 'hired' | 'rejected') => {
+      const updated = candidates.map(c => c.id === id ? { ...c, status: newStatus } : c);
+      setCandidates(updated);
+      localStorage.setItem('life_sakhi_candidates', JSON.stringify(updated));
+    };
+
+    return (
+      <div style={{ background: 'white', padding: '30px', borderRadius: 'var(--border-radius-lg)', boxShadow: 'var(--box-shadow-sm)', marginTop: '20px' }}>
+        <h3 style={{ color: 'var(--color-primary)', fontWeight: 800, marginBottom: '5px' }}>Recruitment Hub</h3>
+        <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '25px' }}>
+          Manage job applications, schedule interviews, and source talent for your NGO operations.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.2fr', gap: '30px', alignItems: 'start' }}>
+          <div>
+            <div style={{ background: 'var(--color-light-gray)', padding: '15px', borderRadius: 'var(--border-radius-sm)', marginBottom: '20px', display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Search Candidate</label>
+                <input
+                  type="text"
+                  placeholder="Name or phone..."
+                  className="form-control"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter State</label>
+                <select
+                  className="form-control form-select"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={filterState}
+                  onChange={(e) => { setFilterState(e.target.value); setFilterDistrict(''); }}
+                >
+                  <option value="">All States</option>
+                  {statesData.states.map((s: any) => (
+                    <option key={s.state} value={s.state}>{s.state}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter District</label>
+                <select
+                  className="form-control form-select"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={filterDistrict}
+                  onChange={(e) => setFilterDistrict(e.target.value)}
+                  disabled={!filterState}
+                >
+                  <option value="">All Districts</option>
+                  {filterDistrictOptions.map((d: string) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter Status</label>
+                <select
+                  className="form-control form-select"
+                  style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  <option value="applied">Applied</option>
+                  <option value="interview_scheduled">Interview Scheduled</option>
+                  <option value="hired">Hired</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)' }}>
+              <table className="table" style={{ margin: 0 }}>
+                <thead style={{ background: 'var(--color-light-gray)' }}>
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Role Applied</th>
+                    <th>Contact</th>
+                    <th>Location</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCandidates.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '20px', color: 'var(--color-muted)' }}>No candidates found matching the filters.</td>
+                    </tr>
+                  ) : (
+                    filteredCandidates.map(c => (
+                      <tr key={c.id}>
+                        <td>
+                          <div style={{ fontWeight: 600, color: 'var(--color-dark)' }}>{c.name}</div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Registered on {new Date(c.createdAt).toLocaleDateString()}</div>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '0.8rem', padding: '4px 8px', background: 'var(--color-light-gray)', borderRadius: '4px', fontWeight: 500 }}>
+                            {c.position}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: '0.8rem' }}>+91 {c.phone}</div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: '0.8rem', fontWeight: 500 }}>{c.district}</div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{c.state}</div>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: c.source.includes('Self') ? 'var(--color-primary)' : 'var(--color-muted)' }}>
+                            {c.source}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status-badge status-${c.status === 'hired' ? 'active' : c.status === 'rejected' ? 'rejected' : c.status === 'interview_scheduled' ? 'pending' : 'pending'}`} style={{ textTransform: 'capitalize' }}>
+                            {c.status.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '5px' }}>
+                            {c.status === 'applied' && (
+                              <button
+                                className="btn btn-outline"
+                                style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
+                                onClick={() => handleUpdateStatus(c.id, 'interview_scheduled')}
+                              >
+                                Schedule
+                              </button>
+                            )}
+                            {c.status === 'interview_scheduled' && (
+                              <button
+                                className="btn btn-secondary"
+                                style={{ padding: '4px 8px', fontSize: '0.7rem', background: 'var(--color-green)' }}
+                                onClick={() => handleUpdateStatus(c.id, 'hired')}
+                              >
+                                Hire
+                              </button>
+                            )}
+                            {c.status !== 'hired' && c.status !== 'rejected' && (
+                              <button
+                                className="btn btn-outline"
+                                style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}
+                                onClick={() => handleUpdateStatus(c.id, 'rejected')}
+                              >
+                                Reject
+                              </button>
+                            )}
+                            {(c.status === 'hired' || c.status === 'rejected') && (
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>No actions</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style={{ background: 'var(--color-light-gray)', padding: '20px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-gray-light)' }}>
+            <h4 style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '15px' }}>Add Candidate</h4>
+            <form onSubmit={handleAddCandidate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Full Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  style={{ background: 'white' }}
+                  placeholder="Enter full name"
+                  value={candName}
+                  onChange={(e) => setCandName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Position / Role</label>
+                <select
+                  className="form-control form-select"
+                  style={{ background: 'white' }}
+                  value={candPosition}
+                  onChange={(e) => setCandPosition(e.target.value)}
+                >
+                  <option value="Volunteer Advocate">Volunteer Advocate</option>
+                  <option value="District Coordinator">District Coordinator</option>
+                  <option value="Block Coordinator">Block Coordinator</option>
+                  <option value="State Coordinator">State Coordinator</option>
+                  <option value="Life Sakhi Distributor">Life Sakhi Distributor</option>
+                  <option value="Clinical Volunteer / Doctor">Clinical Volunteer / Doctor</option>
+                </select>
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Phone Number</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  style={{ background: 'white' }}
+                  placeholder="10-digit number"
+                  maxLength={10}
+                  value={candPhone}
+                  onChange={(e) => setCandPhone(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>State</label>
+                <select
+                  className="form-control form-select"
+                  style={{ background: 'white' }}
+                  value={candState}
+                  onChange={(e) => { setCandState(e.target.value); setCandDistrict(statesData.states.find((s: any) => s.state === e.target.value)?.districts[0] || ''); }}
+                >
+                  {statesData.states.map((s: any) => (
+                    <option key={s.state} value={s.state}>{s.state}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>District</label>
+                <select
+                  className="form-control form-select"
+                  style={{ background: 'white' }}
+                  value={candDistrict}
+                  onChange={(e) => setCandDistrict(e.target.value)}
+                >
+                  {districtOptions.map((d: string) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Source Mode</label>
+                <select
+                  className="form-control form-select"
+                  style={{ background: 'white' }}
+                  value={candSource}
+                  onChange={(e) => setCandSource(e.target.value)}
+                >
+                  <option value="Self Sourced">Self Sourced (Brought by Me)</option>
+                  <option value="NGO Allocated">NGO Allocated (Brought by NGO)</option>
+                </select>
+              </div>
+
+              <button type="submit" className="btn btn-secondary" style={{ width: '100%', marginTop: '5px' }}>
+                Register Candidate
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -1053,6 +1424,7 @@ const Dashboard: React.FC = () => {
                           <option value="women_distributor">Life Sakhi Distributor</option>
                           <option value="doctor">Clinical Doctor</option>
                           <option value="volunteer">Active Volunteer</option>
+                          <option value="hiring_partner">Hiring Partner</option>
                         </select>
                       </div>
                       <div>
@@ -1143,6 +1515,7 @@ const Dashboard: React.FC = () => {
                           <option value="women_distributor">Life Sakhi Distributor</option>
                           <option value="doctor">Clinical Doctor</option>
                           <option value="volunteer">Active Volunteer</option>
+                          <option value="hiring_partner">Hiring Partner</option>
                         </select>
                       </div>
                       <div>
@@ -1505,6 +1878,8 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'recruitment_hub' && renderRecruitmentHub()}
 
           {/* 4. Donor views */}
           {activeTab === 'tax_certificates' && (
