@@ -7,7 +7,7 @@ import {
   Users, ShoppingBag, DollarSign, ClipboardList, 
   FileText, Download, Calendar, Activity, 
   Heart, LogOut, Check, X, Menu, Home, User, Landmark, 
-  Sparkles, CheckCircle2, Truck, Shield
+  Sparkles, CheckCircle2, Truck, Shield, Plus
 } from 'lucide-react';
 import statesData from '../utils/states-and-districts.json';
 
@@ -76,6 +76,7 @@ const Dashboard: React.FC = () => {
   const [mobileOtp, setMobileOtp] = useState('');
   const [isMobileVerified, setIsMobileVerified] = useState(false);
   const [recruitmentSubTab, setRecruitmentSubTab] = useState<'applicants' | 'my_team'>('applicants');
+  const [showAddCandidateModal, setShowAddCandidateModal] = useState(false);
 
   // Recruitment Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -1095,127 +1096,156 @@ const Dashboard: React.FC = () => {
         )}
 
         {recruitmentSubTab === 'applicants' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.3fr', gap: '30px', alignItems: 'start' }}>
-            {/* Left Side: Candidates Database */}
-            <div>
-              {/* Filters panel */}
-              <div style={{ background: 'var(--color-light-gray)', padding: '15px', borderRadius: 'var(--border-radius-sm)', marginBottom: '20px', display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr', gap: '10px' }}>
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Search Candidate</label>
-                  <input
-                    type="text"
-                    placeholder="Name or phone..."
-                    className="form-control"
-                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter State</label>
-                  <select
-                    className="form-control form-select"
-                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                    value={filterState}
-                    onChange={(e) => { setFilterState(e.target.value); setFilterDistrict(''); }}
-                  >
-                    <option value="">All States</option>
-                    {statesData.states.map((s: any) => (
-                      <option key={s.state} value={s.state}>{s.state}</option>
-                    ))}
-                  </select>
-                </div>
+          <div>
+            {/* Header row with Add button */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+                Applicants Directory ({filteredCandidates.length} Candidates)
+              </div>
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                style={{ padding: '8px 16px', background: 'var(--color-green)', borderColor: 'var(--color-green)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}
+                onClick={() => setShowAddCandidateModal(true)}
+              >
+                <Plus size={16} /> Register New Candidate
+              </button>
+            </div>
 
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter District</label>
-                  <select
-                    className="form-control form-select"
-                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                    value={filterDistrict}
-                    onChange={(e) => setFilterDistrict(e.target.value)}
-                    disabled={!filterState}
-                  >
-                    <option value="">All Districts</option>
-                    {filterDistrictOptions.map((d: string) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-muted)', display: 'block', marginBottom: '4px' }}>Filter Status</label>
-                  <select
-                    className="form-control form-select"
-                    style={{ padding: '6px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                  >
-                    <option value="">All Statuses</option>
-                    <option value="applied">Applied</option>
-                    <option value="interview_scheduled">Interview Scheduled</option>
-                    <option value="hired">Hired</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
+            {/* Filters panel (Full Width) */}
+            <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', border: '1px solid #eee', marginBottom: '20px', display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr', gap: '15px' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-muted)', display: 'block', marginBottom: '6px' }}>Search Candidate</label>
+                <input
+                  type="text"
+                  placeholder="Search by name or phone..."
+                  className="form-control"
+                  style={{ padding: '8px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-muted)', display: 'block', marginBottom: '6px' }}>Filter State</label>
+                <select
+                  className="form-control form-select"
+                  style={{ padding: '8px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={filterState}
+                  onChange={(e) => { setFilterState(e.target.value); setFilterDistrict(''); }}
+                >
+                  <option value="">All States</option>
+                  {statesData.states.map((s: any) => (
+                    <option key={s.state} value={s.state}>{s.state}</option>
+                  ))}
+                </select>
               </div>
 
-              {/* Table */}
-              <div style={{ overflowX: 'auto', border: '1px solid var(--color-gray-light)', borderRadius: 'var(--border-radius-sm)' }}>
-                <table className="table" style={{ margin: 0 }}>
-                  <thead style={{ background: 'var(--color-light-gray)' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-muted)', display: 'block', marginBottom: '6px' }}>Filter District</label>
+                <select
+                  className="form-control form-select"
+                  style={{ padding: '8px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={filterDistrict}
+                  onChange={(e) => setFilterDistrict(e.target.value)}
+                  disabled={!filterState}
+                >
+                  <option value="">All Districts</option>
+                  {filterDistrictOptions.map((d: string) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-muted)', display: 'block', marginBottom: '6px' }}>Filter Status</label>
+                <select
+                  className="form-control form-select"
+                  style={{ padding: '8px 12px', fontSize: '0.8rem', height: 'auto', background: 'white' }}
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  <option value="applied">Applied</option>
+                  <option value="interview_scheduled">Interview Scheduled</option>
+                  <option value="hired">Hired</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Table (Full Width) */}
+            <div style={{ overflowX: 'auto', border: '1px solid #eee', borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+              <table className="table" style={{ margin: 0, width: '100%' }}>
+                <thead style={{ background: '#f8f9fa' }}>
+                  <tr>
+                    <th style={{ padding: '12px 15px' }}>Candidate</th>
+                    <th style={{ padding: '12px 15px' }}>Applied Role</th>
+                    <th style={{ padding: '12px 15px' }}>Contact</th>
+                    <th style={{ padding: '12px 15px' }}>Location</th>
+                    <th style={{ padding: '12px 15px' }}>Source</th>
+                    <th style={{ padding: '12px 15px' }}>Status</th>
+                    <th style={{ padding: '12px 15px', textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCandidates.length === 0 ? (
                     <tr>
-                      <th>Candidate</th>
-                      <th>Applied Role</th>
-                      <th>Contact</th>
-                      <th>Location</th>
-                      <th>Source</th>
-                      <th>Status</th>
-                      <th>Actions</th>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: 'var(--color-muted)' }}>No candidates found matching the filters.</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCandidates.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} style={{ textAlign: 'center', padding: '20px', color: 'var(--color-muted)' }}>No candidates found matching the filters.</td>
-                      </tr>
-                    ) : (
-                      filteredCandidates.map(c => (
-                        <tr key={c.id}>
-                          <td>
-                            <div style={{ fontWeight: 600, color: 'var(--color-dark)' }}>{c.name}</div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Registered on {new Date(c.createdAt).toLocaleDateString()}</div>
+                  ) : (
+                    filteredCandidates.map(c => {
+                      const initials = c.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                      
+                      let statusBg = '#e8f4fd';
+                      let statusColor = '#1d88e5';
+                      if (c.status === 'hired') { statusBg = '#e6f4ea'; statusColor = '#137333'; }
+                      else if (c.status === 'rejected') { statusBg = '#fce8e6'; statusColor = '#c5221f'; }
+                      else if (c.status === 'interview_scheduled') { statusBg = '#fef9c3'; statusColor = '#854d0e'; }
+
+                      return (
+                        <tr key={c.id} style={{ borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '12px 15px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(140, 198, 62, 0.1)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                                {initials}
+                              </div>
+                              <div>
+                                <div style={{ fontWeight: 700, color: 'var(--color-dark)', fontSize: '0.9rem' }}>{c.name}</div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Sourced: {new Date(c.createdAt).toLocaleDateString()}</div>
+                              </div>
+                            </div>
                           </td>
-                          <td>
-                            <span style={{ fontSize: '0.8rem', padding: '4px 8px', background: 'var(--color-light-gray)', borderRadius: '4px', fontWeight: 500 }}>
+                          <td style={{ padding: '12px 15px' }}>
+                            <span style={{ fontSize: '0.75rem', padding: '3px 8px', background: '#f0f4f8', color: '#4a5568', borderRadius: '4px', fontWeight: 600 }}>
                               {c.position}
                             </span>
                           </td>
-                          <td>
-                            <div style={{ fontSize: '0.8rem' }}>+91 {c.phone}</div>
+                          <td style={{ padding: '12px 15px' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>+91 {c.phone}</div>
                             <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{c.email}</div>
                           </td>
-                          <td>
-                            <div style={{ fontSize: '0.8rem', fontWeight: 500 }}>{c.district}</div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{c.state}</div>
+                          <td style={{ padding: '12px 15px' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{c.city || c.district}</div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>{c.state} ({c.pincode})</div>
                           </td>
-                          <td>
+                          <td style={{ padding: '12px 15px' }}>
                             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: c.source.includes('Self') ? 'var(--color-primary)' : 'var(--color-muted)' }}>
                               {c.source}
                             </span>
                           </td>
-                          <td>
-                            <span className={`status-badge status-${c.status === 'hired' ? 'active' : c.status === 'rejected' ? 'rejected' : c.status === 'interview_scheduled' ? 'pending' : 'pending'}`} style={{ textTransform: 'capitalize' }}>
+                          <td style={{ padding: '12px 15px' }}>
+                            <span style={{ textTransform: 'capitalize', fontSize: '0.75rem', padding: '3px 8px', borderRadius: '12px', fontWeight: 700, background: statusBg, color: statusColor, display: 'inline-block' }}>
                               {c.status.replace('_', ' ')}
                             </span>
                           </td>
-                          <td>
-                            <div style={{ display: 'flex', gap: '5px' }}>
+                          <td style={{ padding: '12px 15px', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                               {c.status === 'applied' && (
                                 <button
                                   type="button"
                                   className="btn btn-outline"
-                                  style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
+                                  style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-primary)', color: 'var(--color-primary)', background: 'white' }}
                                   onClick={() => handleUpdateStatus(c.id, 'interview_scheduled')}
                                 >
                                   Schedule
@@ -1225,7 +1255,7 @@ const Dashboard: React.FC = () => {
                                 <button
                                   type="button"
                                   className="btn btn-secondary"
-                                  style={{ padding: '4px 8px', fontSize: '0.7rem', background: 'var(--color-green)' }}
+                                  style={{ padding: '4px 8px', fontSize: '0.7rem', background: 'var(--color-green)', border: 'none', color: 'white' }}
                                   onClick={() => handleUpdateStatus(c.id, 'hired')}
                                 >
                                   Hire
@@ -1235,201 +1265,213 @@ const Dashboard: React.FC = () => {
                                 <button
                                   type="button"
                                   className="btn btn-outline"
-                                  style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)' }}
+                                  style={{ padding: '4px 8px', fontSize: '0.7rem', borderColor: 'var(--color-red)', color: 'var(--color-red)', background: 'white' }}
                                   onClick={() => handleUpdateStatus(c.id, 'rejected')}
                                 >
                                   Reject
                                 </button>
                               )}
                               {(c.status === 'hired' || c.status === 'rejected') && (
-                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>No actions</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>Completed</span>
                               )}
                             </div>
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
 
-            {/* Right Side: Add Candidate Form */}
-            <div style={{ background: 'var(--color-light-gray)', padding: '20px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-gray-light)' }}>
-              <h4 style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '15px' }}>Add Candidate</h4>
-              <form onSubmit={handleAddCandidate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Full Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    style={{ background: 'white' }}
-                    placeholder="Enter full name"
-                    value={candName}
-                    onChange={(e) => setCandName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Email Address</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    style={{ background: 'white' }}
-                    placeholder="name@example.com"
-                    value={candEmail}
-                    onChange={(e) => setCandEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Phone Number</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input
-                      type="tel"
-                      className="form-control"
-                      style={{ background: 'white', flex: 1 }}
-                      placeholder="10-digit phone"
-                      maxLength={10}
-                      value={candPhone}
-                      onChange={(e) => { setCandPhone(e.target.value); setIsMobileVerified(false); }}
-                      disabled={isMobileVerified}
-                      required
-                    />
+            {/* Modal Popup Form (Register Candidate) */}
+            {showAddCandidateModal && (
+              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+                <div style={{ background: 'white', padding: '30px', borderRadius: '12px', maxWidth: '650px', width: '90%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 25px rgba(0,0,0,0.15)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
+                    <h4 style={{ color: 'var(--color-primary)', fontWeight: 800, margin: 0 }}>Register New Candidate</h4>
                     <button 
                       type="button" 
-                      onClick={triggerSendOtp}
-                      className="btn btn-secondary" 
-                      style={{ padding: '6px 12px', fontSize: '0.75rem', background: isMobileVerified ? 'var(--color-green)' : 'var(--color-primary)' }}
-                      disabled={isMobileVerified}
+                      onClick={() => setShowAddCandidateModal(false)}
+                      style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--color-muted)' }}
                     >
-                      {isMobileVerified ? 'Verified ✓' : 'Send OTP'}
+                      ×
                     </button>
                   </div>
+
+                  <form onSubmit={async (e) => { await handleAddCandidate(e); setShowAddCandidateModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Full Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Enter candidate name"
+                          value={candName}
+                          onChange={(e) => setCandName(e.target.value)}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Email Address</label>
+                        <input
+                          type="email"
+                          className="form-control"
+                          placeholder="name@example.com"
+                          value={candEmail}
+                          onChange={(e) => setCandEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Phone Number</label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input
+                            type="tel"
+                            className="form-control"
+                            style={{ flex: 1 }}
+                            placeholder="10-digit mobile"
+                            maxLength={10}
+                            value={candPhone}
+                            onChange={(e) => { setCandPhone(e.target.value); setIsMobileVerified(false); }}
+                            disabled={isMobileVerified}
+                            required
+                          />
+                          <button 
+                            type="button" 
+                            onClick={triggerSendOtp}
+                            className="btn btn-secondary" 
+                            style={{ padding: '6px 12px', fontSize: '0.75rem', background: isMobileVerified ? 'var(--color-green)' : 'var(--color-primary)' }}
+                            disabled={isMobileVerified}
+                          >
+                            {isMobileVerified ? 'Verified ✓' : 'Send OTP'}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Aadhaar Number (12-Digits)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="XXXX XXXX XXXX"
+                          maxLength={12}
+                          value={candAadhaar}
+                          onChange={(e) => setCandAadhaar(e.target.value.replace(/\D/g, ''))}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Position / Role</label>
+                        <select
+                          className="form-control form-select"
+                          value={candPosition}
+                          onChange={(e) => setCandPosition(e.target.value)}
+                        >
+                          <option value="Volunteer Advocate">Volunteer Advocate</option>
+                          <option value="District Coordinator">District Coordinator</option>
+                          <option value="Block Coordinator">Block Coordinator</option>
+                          <option value="State Coordinator">State Coordinator</option>
+                          <option value="Life Sakhi Distributor">Life Sakhi Distributor</option>
+                          <option value="Clinical Volunteer / Doctor">Clinical Volunteer / Doctor</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Source Mode</label>
+                        <select
+                          className="form-control form-select"
+                          value={candSource}
+                          onChange={(e) => setCandSource(e.target.value)}
+                        >
+                          <option value="Self Sourced">Self Sourced (Brought by Me)</option>
+                          <option value="NGO Allocated">NGO Allocated (Brought by NGO)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>State</label>
+                        <select
+                          className="form-control form-select"
+                          value={candState}
+                          onChange={(e) => { setCandState(e.target.value); setCandDistrict(statesData.states.find((s: any) => s.state === e.target.value)?.districts[0] || ''); }}
+                        >
+                          {statesData.states.map((s: any) => (
+                            <option key={s.state} value={s.state}>{s.state}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>District</label>
+                        <select
+                          className="form-control form-select"
+                          value={candDistrict}
+                          onChange={(e) => setCandDistrict(e.target.value)}
+                        >
+                          {districtOptions.map((d: string) => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '15px' }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>City</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="e.g. Mathura"
+                          value={candCity}
+                          onChange={(e) => setCandCity(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Pincode</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="6-Digits"
+                          maxLength={6}
+                          value={candPincode}
+                          onChange={(e) => setCandPincode(e.target.value.replace(/\D/g, ''))}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.75rem', fontWeight: 700 }}>Physical Address</label>
+                      <textarea
+                        rows={2}
+                        className="form-control"
+                        placeholder="Enter complete house address"
+                        value={candAddress}
+                        onChange={(e) => setCandAddress(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '15px', marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                      <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Register Candidate</button>
+                      <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowAddCandidateModal(false)}>Cancel</button>
+                    </div>
+                  </form>
                 </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Aadhaar Number (12-Digits)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    style={{ background: 'white' }}
-                    placeholder="XXXX XXXX XXXX"
-                    maxLength={12}
-                    value={candAadhaar}
-                    onChange={(e) => setCandAadhaar(e.target.value.replace(/\D/g, ''))}
-                    required
-                  />
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Position / Role</label>
-                  <select
-                    className="form-control form-select"
-                    style={{ background: 'white' }}
-                    value={candPosition}
-                    onChange={(e) => setCandPosition(e.target.value)}
-                  >
-                    <option value="Volunteer Advocate">Volunteer Advocate</option>
-                    <option value="District Coordinator">District Coordinator</option>
-                    <option value="Block Coordinator">Block Coordinator</option>
-                    <option value="State Coordinator">State Coordinator</option>
-                    <option value="Life Sakhi Distributor">Life Sakhi Distributor</option>
-                    <option value="Clinical Volunteer / Doctor">Clinical Volunteer / Doctor</option>
-                  </select>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>State</label>
-                    <select
-                      className="form-control form-select"
-                      style={{ background: 'white' }}
-                      value={candState}
-                      onChange={(e) => { setCandState(e.target.value); setCandDistrict(statesData.states.find((s: any) => s.state === e.target.value)?.districts[0] || ''); }}
-                    >
-                      {statesData.states.map((s: any) => (
-                        <option key={s.state} value={s.state}>{s.state}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>District</label>
-                    <select
-                      className="form-control form-select"
-                      style={{ background: 'white' }}
-                      value={candDistrict}
-                      onChange={(e) => setCandDistrict(e.target.value)}
-                    >
-                      {districtOptions.map((d: string) => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '10px' }}>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>City</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      style={{ background: 'white' }}
-                      placeholder="e.g. Mathura"
-                      value={candCity}
-                      onChange={(e) => setCandCity(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Pincode</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      style={{ background: 'white' }}
-                      placeholder="6-Digits"
-                      maxLength={6}
-                      value={candPincode}
-                      onChange={(e) => setCandPincode(e.target.value.replace(/\D/g, ''))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Physical Address</label>
-                  <textarea
-                    rows={2}
-                    className="form-control"
-                    style={{ background: 'white', resize: 'none' }}
-                    placeholder="Enter complete house address"
-                    value={candAddress}
-                    onChange={(e) => setCandAddress(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label" style={{ fontSize: '0.75rem' }}>Source Mode</label>
-                  <select
-                    className="form-control form-select"
-                    style={{ background: 'white' }}
-                    value={candSource}
-                    onChange={(e) => setCandSource(e.target.value)}
-                  >
-                    <option value="Self Sourced">Self Sourced (Brought by Me)</option>
-                    <option value="NGO Allocated">NGO Allocated (Brought by NGO)</option>
-                  </select>
-                </div>
-
-                <button type="submit" className="btn btn-secondary" style={{ width: '100%', marginTop: '5px' }}>
-                  Register Candidate
-                </button>
-              </form>
-            </div>
+              </div>
+            )}
           </div>
         ) : (
           /* My Team list */
